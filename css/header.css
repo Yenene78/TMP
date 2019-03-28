@@ -1,4 +1,17 @@
+.brand {
+	margin: 2% 2%;
+}
+
 .header {
     padding: 5% 10%;
-    border: none;
+}
+
+.bg{
+	background-repeat: no-repeat;
+	background-size: relative;
+}
+
+.content{
+	padding: 5% 10%;
+	background-color: rgba(255,255,255,0.7);
 }
