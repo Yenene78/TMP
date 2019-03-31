@@ -1,0 +1,92 @@
+<html>
+	<head>
+		<title>Logon</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/uikit.min.css" />
+		<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="js/uikit.min.js"></script>
+
+        <script type="text/javascript">
+            function checkName(name){
+                var warnDiv = document.getElementById("warning");
+                if((name).length < 3){
+                    warnDiv.innerHTML = "<b>Warning:</b> Too short Username!"; 
+                    return;
+                }
+            }
+
+            function checkPwd(input){
+                var input0 = document.getElementById("pwd");
+                var input1 = document.getElementById("pwd1");
+                var warnDiv = document.getElementById("warning");
+                if((input.value).length < 6){
+                    warnDiv.innerHTML = "<b>Warning:</b> Too short Password!"; 
+                    return;
+                }
+                if(input0.value != input1.value){
+                    warnDiv.innerHTML = "<b>Warning:</b> Different Passwords.";   
+                };
+
+            }
+
+            function recoverWarn(){
+                var warnDiv = document.getElementById("warning");
+                warnDiv.innerHTML = "";
+                warnDiv.style.display = "none";
+                warnDiv.style.color = "red";
+            }
+
+            function postReg(){
+                checkPwd(document.getElementById("pwd"));
+                checkPwd(document.getElementById("pwd1"));
+                var warnDiv = document.getElementById("warning");
+                if(warnDiv.style.display != "none"){
+                    alert("Please fix warnings!");
+                    return;
+                }
+                var userName = document.getElementById("userName").value;
+                var pwd = document.getElementById("pwd").value;
+                $.ajax({
+                    url: "php/account.php",
+                    dataType: 'json',
+                    method: 'POST',
+                    data: {"type":"register", "userName":userName, "pwd":pwd},
+                    success: function(data){
+                        alert(data);
+                    }
+                    });
+            }
+
+
+        </script>
+
+	</head>
+	<body class="uk-height-1-1">
+        <div class="uk-vertical-align uk-text-center uk-height-1-1">
+            <div class="uk-vertical-align-middle" style="width: 250px;">
+                <img class="uk-margin-bottom" width="140" height="120" src="img/logo.png" alt="Welcome.">
+                <form class="uk-panel uk-panel-box uk-form">
+                    <div id="warning" class="uk-form-row" style="display:none;">
+                    </div>
+                    <div class="uk-form-row" onclick="recoverWarn();">
+                        <input id="userName" class="uk-width-1-1 uk-form-large" type="text" placeholder="Username" onchange="checkName(this.value);">
+                    </div>
+                    <div class="uk-form-row" onclick="recoverWarn();">
+                        <input id="pwd" class="uk-width-1-1 uk-form-large" type="text" placeholder="Password" onchange="checkPwd(this);">
+                    </div>
+                    <div class="uk-form-row" onclick="recoverWarn();">
+                        <input id="pwd1" class="uk-width-1-1 uk-form-large" type="text" placeholder="Repeat Password" onchange="checkPwd(this);">
+                    </div>
+                    <div class="uk-form-row">
+                        <a class="uk-width-1-1 uk-button uk-button-primary uk-button-large" onclick="postReg()">Register</a>
+                    </div>
+                    <div class="uk-form-row uk-text-small">
+                        <label class="uk-float-left"><a class="uk-float-right uk-link uk-link-muted" style="color: green;" href="login.html"><b>Already have account?</b></a></label>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </body>
+</html>
