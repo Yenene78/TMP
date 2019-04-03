@@ -54,10 +54,10 @@
 		$con = connectDB();
 		$userName = (string)$userName;
 		$pwd = (string)$pwd;
-		$query = "select * from user_basic where userName=".$userName." and password=".$pwd.";";
+		$query = "select * from user_basic where userName='".$userName."' and password='".$pwd."';";
 		$ret = mysqli_query($con, $query);
 		if($ret->num_rows != 0){
-			$query = "select repoName from repo_basic where userName=".$userName.";";
+			$query = "select repoName from repo_basic where userName='".$userName."';";
 			$ret = mysqli_query($con, $query);
 			$ret = mysqli_fetch_all($ret);
 			session_start();
@@ -75,12 +75,12 @@
 		$con = connectDB();
 		$userName = (string)$userName;
 		$pwd = (string)$pwd;
-		$query = "select * from user_basic where userName=". $userName;
+		$query = "select * from user_basic where userName='". $userName."';";
 		$ret = mysqli_query($con, $query);
 		if($ret->num_rows != 0){
 			return -1;
 		}
-		$query = "insert into user_basic (userName, password) values (".$userName.",".$pwd.");";
+		$query = "insert into user_basic (userName, password) values ('".$userName."','".$pwd."');";
 		$ret = mysqli_query($con, $query);
 		if(!$ret){
 			die("[ERROR] Fail to insert data!". mysqli_error($con));
