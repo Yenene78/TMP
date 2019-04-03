@@ -37,11 +37,11 @@ function recoverWarn(){
     var warnDiv = document.getElementById("warning");
     warnDiv.innerHTML = "";
     warnDiv.style.display = "none";
-    warnDiv.style.color = "red";
 }
 
 function setWarn(str){
     var warnDiv = document.getElementById("warning");
     warnDiv.innerHTML = str;
+    warnDiv.style.color = "red";
     warnDiv.style.display = "";
 }

@@ -7,23 +7,60 @@
 		<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="js/uikit.min.js"></script>
         <script type="text/javascript" src="js/login.js"></script>
+        <script type="text/javascript">
+            function callback(statusCode){
+                if(statusCode == 200){
+                    alert("Success!");
+                    window.location.href = "homepage.html";
+                }else if(statusCode == -1){
+                    setWarn("<b>Wrong Password</b>");
+                }
+            }
+
+            function postReg(){
+                checkPwd(document.getElementById("pwd"));
+                var warnDiv = document.getElementById("warning");
+                if(warnDiv.style.display != "none"){
+                    alert("Please fix warnings!");
+                    return;
+                }
+                var userName = document.getElementById("userName").value;
+                var pwd = document.getElementById("pwd").value;
+                $.ajax({
+                    url: "php/account.php",
+                    dataType: 'json',
+                    method: 'POST',
+                    data: {"type":"login", "userName":userName, "pwd":pwd},
+                    success: function(data){
+                        if(data["check"]){
+                            callback(data["status"]);
+                        }else{
+                            setWarn("<b>Invalid Username/Pwd;</b>");
+                        }
+                    },
+                    error: function(){
+                        alert("[Error] Fail to post data!");
+                    }
+                });
+            }
+        </script>
 	</head>
 	<body class="uk-height-1-1">
         <div class="uk-vertical-align uk-text-center uk-height-1-1">
             <div class="uk-vertical-align-middle" style="width: 250px;">
                 <img class="uk-margin-bottom" width="140" height="120" src="img/logo.png" alt="Welcome.">
                 <form class="uk-panel uk-panel-box uk-form">
-                    <div class="uk-form-row">
-                        <input id="userName" class="uk-width-1-1 uk-form-large" type="text" placeholder="Username">
+                    <div id="warning" class="uk-form-row" style="display:none;"></div>
+                    <div class="uk-form-row" onclick="recoverWarn();">
+                        <input id="userName" class="uk-width-1-1 uk-form-large" type="text" placeholder="Username" onchange="checkName(this.value);">
+                    </div>
+                    <div class="uk-form-row" onclick="recoverWarn();">
+                        <input id="pwd" class="uk-width-1-1 uk-form-large" type="text" placeholder="Password" onchange="checkPwd(this);">
                     </div>
                     <div class="uk-form-row">
-                        <input id="input0" class="uk-width-1-1 uk-form-large" type="text" placeholder="Password">
-                    </div>
-                    <div class="uk-form-row">
-                        <a class="uk-width-1-1 uk-button uk-button-primary uk-button-large" href="Homepage.html">Login</a>
+                        <a class="uk-width-1-1 uk-button uk-button-primary uk-button-large" onclick="postReg();">Login</a>
                     </div>
                     <div class="uk-form-row uk-text-small">
-                        <!-- <label class="uk-float-left"><input type="checkbox">Register</label> -->
                         <label class="uk-float-left"><a class="uk-float-right uk-link uk-link-muted" style="color: green;" href="register.html"><b>Register</b></a></label>
                         <a class="uk-float-right uk-link uk-link-muted" href="#">Forgot Password?</a>
                     </div>

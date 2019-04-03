@@ -1,0 +1,9 @@
+use web;
+
+create table repo_basic(
+	repoName varchar(16),
+	description varchar(100),
+	userName varchar(16),
+	PRIMARY KEY(repoName),
+	KEY(userName)
+);

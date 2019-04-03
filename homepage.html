@@ -9,9 +9,10 @@
         <script type="text/javascript" src="js/uikit.min.js"></script>
         <script type="text/javascript" src="js/vue.min.js"></script>
         <script type="text/javascript" src="js/vue-router.min.js"></script>
+        <script type="text/javascript" src="js/homepage.js"></script>
     </head>
 
-    <body class="uk-scope bg" background="img/index_header.jpg">
+    <body class="uk-scope bg" background="img/index_header.jpg" onload="checkLogin();">
         <div class="uk-container uk-container-center">
             <div id="header" class="uk-grid uk-position-relative header">
                 <div class="uk-width-expand uk-navbar-brand brand"><b>HelloWorld</b></div>
@@ -37,8 +38,16 @@
                     </ul>
                 </nav>
             </div>
+            
             <div id="content" class="uk-container-small uk-position-relative content">
-                <div class="uk-article">
+                <div class="uk-container-small uk-float-left">
+                        <ul id="leftTab" class="uk-tab uk-tab-left uk-width-1-3" data-uk-tab>
+                            <!-- <li>
+                                <a href="#">Proj1</a>
+                            </li> -->
+                        </ul>
+                </div>
+                <div class="uk-article uk-position-relative uk-float-right uk-width-2-3">
                     <h1 class="uk-article-title">
                         This is a TEST
                     </h1>
