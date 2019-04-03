@@ -57,7 +57,7 @@
 		$query = "select * from user_basic where userName=".$userName." and password=".$pwd.";";
 		$ret = mysqli_query($con, $query);
 		if($ret->num_rows != 0){
-			$query = "select * from repo_basic where userName=".$userName.";";
+			$query = "select repoName from repo_basic where userName=".$userName.";";
 			$ret = mysqli_query($con, $query);
 			$ret = mysqli_fetch_all($ret);
 			session_start();
