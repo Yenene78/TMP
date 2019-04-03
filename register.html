@@ -6,46 +6,16 @@
 		<link rel="stylesheet" href="css/uikit.min.css" />
 		<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="js/uikit.min.js"></script>
+        <script type="text/javascript" src="js/login.js"></script>
 
         <script type="text/javascript">
-            function callback(data){
-                if(data == "passCheck200"){
+            function callback(statusCode){
+                if(statusCode == 200){
+                    alert("Success!");
                     window.location.href = "login.html";
+                }else if(statusCode == -1){
+                    setWarn("<b>Existed Username!</b>");
                 }
-            }
-
-            function clearInput(){
-                var input0 = document.getElementById("pwd");
-                var input1 = document.getElementById("pwd1");
-                input0.value = "";
-                input1.value = "";
-            }
-
-            function checkName(name){
-                var warnDiv = document.getElementById("warning");
-                if((name).length < 3){
-                    warnDiv.innerHTML = "<b>Warning:</b> Too short Username!"; 
-                    warnDiv.style.display = "";
-                    return;
-                }
-            }
-
-            function checkPwd(input){
-                var input0 = document.getElementById("pwd");
-                var input1 = document.getElementById("pwd1");
-                var warnDiv = document.getElementById("warning");
-                if((input.value).length < 6){
-                    warnDiv.innerHTML = "<b>Warning:</b> Too short Password!"; 
-                    warnDiv.style.display = "";
-                    return;
-                }
-                if(input0.value != input1.value){
-                    warnDiv.innerHTML = "<b>Warning:</b> Different Passwords.";  
-                    warnDiv.style.display = ""; 
-                    return;
-                };
-                recoverWarn();
-
             }
 
             function postReg(){
@@ -58,31 +28,24 @@
                 }
                 var userName = document.getElementById("userName").value;
                 var pwd = document.getElementById("pwd").value;
-                var ret;
                 $.ajax({
                     url: "php/account.php",
-                    // dataType: 'json',
-                    contentType: 'application/json;charset=utf-8',
+                    dataType: 'json',
+                    // contentType: 'application/json;charset=utf-8',
                     method: 'POST',
                     data: {"type":"register", "userName":userName, "pwd":pwd},
                     success: function(data){
-                        ret = data;
-                        alert(data);
+                        if(data["check"]){
+                            callback(data["status"]);
+                        }else{
+                            setWarn("<b>Invalid Username/Pwd;</b>");
+                        }
                     },
-                    error: function(data){
+                    error: function(){
                         alert("[Error] Fail to post data!");
                     }
                 });
-                alert(ret);
             }
-
-            function recoverWarn(){
-                var warnDiv = document.getElementById("warning");
-                warnDiv.innerHTML = "";
-                warnDiv.style.display = "none";
-                warnDiv.style.color = "red";
-            }
-
 
 
         </script>
