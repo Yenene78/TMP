@@ -1,0 +1,8 @@
+use web;
+
+create table template_basic(
+	templateName varchar(16),
+	description varchar(100),
+	userName varchar(16),
+	PRIMARY KEY(templateName)
+);	

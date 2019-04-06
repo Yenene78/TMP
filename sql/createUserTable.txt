@@ -1,6 +1,7 @@
 create database if not exists web;
 use web;
 
+drop table user_basic;
 create table user_basic(
 	userName varchar(16),
 	password varchar(16),
