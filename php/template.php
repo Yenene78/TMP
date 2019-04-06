@@ -8,8 +8,22 @@
 		return $con;
 	}
 
+	function getElement($con, $RET){
+		$query = "select * from element_basic;";
+		$ret = mysqli_query($con, $query);
+		if($ret->num_rows != 0){
+			$RET["status"] = 200;
+			$RET["field"] = mysqli_fetch_fields($ret);
+			$RET["ele"] = mysqli_fetch_all($ret);
+		}else{
+			$RET["status"] = -1;
+			$RET["ele"] = array();
+		}
+		return $RET;
+	}
+
 	function listRepo($con, $RET){
-		$query = "select * from template_basic;";
+		$query = "select templateName from template_basic;";
 		$ret = mysqli_query($con, $query);
 		if($ret->num_rows != 0){
 			$RET["status"] = 200;
@@ -30,7 +44,9 @@
 			case "list":
 				$ret = listRepo($con, $ret);
 				break;
-			
+			case "getEle":
+				$ret = getElement($con, $ret);
+				break;
 			default:
 				# code...
 				break;

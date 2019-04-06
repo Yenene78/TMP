@@ -1,0 +1,13 @@
+use web;
+
+drop table if exists element_basic;
+
+create table element_basic(
+	elementName varchar(16),
+	description varchar(100),
+	path varchar(100),
+	inputType varchar(16),
+	outputType varchar(16)
+);
+
+insert into element_basic (elementName, description, path, inputType, outputType) values ("test", "my simple test", "test.py", "#", "string");

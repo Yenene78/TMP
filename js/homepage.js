@@ -44,14 +44,6 @@ function createRepo(){
 
 function loadRepo(repo){
 	if(repo.length == 0){
-		var emptyBut = document.createElement("button");
-		var newLi = document.createElement("li");
-		emptyBut.className = "uk-button uk-button-success uk-width-1-3 circleBut";
-		emptyBut.innerHTML = "Create";
-		emptyBut.addEventListener("click", function(){createRepo()}, false);
-		var father = document.getElementById("contentList");
-		newLi.append(emptyBut);
-		father.append(newLi);
 		var contentTitle = document.getElementById("contentTitle");
 		contentTitle.innerHTML = "No Projects Found.";
 	}else{
@@ -66,5 +58,15 @@ function loadRepo(repo){
 			newLi.append(child);
 			leftTab.append(newLi);
 		}
+		var contentTitle = document.getElementById("contentTitle");
+		contentTitle.innerHTML = "Choose/Create a project.";
 	}
+	var emptyBut = document.createElement("button");
+	var newLi = document.createElement("li");
+	emptyBut.className = "uk-button uk-button-success uk-width-1-3 circleBut";
+	emptyBut.innerHTML = "Create";
+	emptyBut.addEventListener("click", function(){createRepo()}, false);
+	var father = document.getElementById("contentList");
+	newLi.append(emptyBut);
+	father.append(newLi);
 }

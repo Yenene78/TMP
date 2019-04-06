@@ -1,5 +1,7 @@
 use web;
 
+drop table if exists repo_basic;
+
 create table repo_basic(
 	repoName varchar(16),
 	description varchar(100),
@@ -7,3 +9,5 @@ create table repo_basic(
 	PRIMARY KEY(repoName),
 	KEY(userName)
 );
+
+insert into repo_basic (repoName, description, userName) values ("Repo1", "test", "123");

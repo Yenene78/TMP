@@ -1,8 +1,12 @@
 use web;
 
+drop table template_basic;
+
 create table template_basic(
 	templateName varchar(16),
 	description varchar(100),
 	userName varchar(16),
 	PRIMARY KEY(templateName)
 );	
+
+insert into template_basic (templateName, description, userName) values ("Template1","Test","123");
