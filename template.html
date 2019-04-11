@@ -23,7 +23,7 @@
                         <li data-uk-dropdown>
                             <a href="#">Settings</a>
                             <div class="uk-dropdown uk-dropdown-navbar uk-dropdown-bottom">
-                                <ul class="uk-nav uk-nav-navbar">
+                                <ul class="uk-nav uk-nav-navbar" >
                                     <li class="uk-active"><a href="#">Active</a></li>
                                     <li><a href="#">Item</a></li>
                                     <li class="uk-nav-header">Header</li>
@@ -49,10 +49,16 @@
                     <h1 id="contentTitle" class="uk-article-title">
                         This is a TEST
                     </h1>
-                    <ul id="contentList" class="list-group uk-position-relative uk-overflow-auto" style="list-style-type:none">
-                    </ul>
-                    <!-- <p class="uk-article-meta">This is content</p> -->
-                    <!-- <p class="uk-article-lead">This is content</p> -->
+                    <table id="contentList" class="uk-table uk-text-nowrap">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
