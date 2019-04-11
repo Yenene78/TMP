@@ -20,6 +20,15 @@ function checkLogin(){
     });
 }
 
+function createBtnSub(){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "uk-button-success uk-button circleBut uk-width-expand";
+    btn.innerHTML = "Submit";
+    btn.addEventListener("click", function(){processControl(this, 1);});
+    return btn;
+}
+
 function createTem(btn){
     btn.style.display = "none";
     var father = document.getElementById("contentList");
@@ -106,8 +115,11 @@ function createStep1(){
     canvas.className = "uk-width-expand uk-height-expand";
     canvas.id = "canvas";
     var context = canvas.getContext("2d");
-    context.zoom = 1;
-    drawGrid(context, "#ccc", 5, 5, 1);
+    // scaleDiv[display: none]:
+    var scaleDiv = document.getElementById("scale");
+    scaleDiv.innerHTML = 1;
+    // draw Grid;
+    drawGrid(context, "#ccc", 5, 5);
     row.append(canvas);
     father.append(row);
     // icons;
@@ -120,47 +132,94 @@ function createStep1(){
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
         canvas.height = canvas.height;  // clear canvas;
-        context.scale(2, 2);
-        context.zoom= 2 * context.zoom;
-        drawGrid(canvas.getContext("2d"), "#ccc", 5*context.zoom, 5*context.zoom);
+        var scaleDiv = document.getElementById("scale");
+        scaleDiv.innerHTML *= 2;
+        drawGrid(context, "#ccc", 5, 5);
     });
     icon1.addEventListener("click", function(){  // scale down;
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
         canvas.height = canvas.height;
-        context.scale(0.5, 0.5);
-        context.zoom= 0.5 * context.zoom;
-        drawGrid(canvas.getContext("2d"), "#ccc", 5*context.zoom, 5*context.zoom);
+        var scaleDiv = document.getElementById("scale");
+        scaleDiv.innerHTML *= 0.5;
+        drawGrid(context, "#ccc", 5, 5);
     });
     row.append(icon);
     row.append(icon1);
     father.append(row);
+    // create Tool Bars;
+    createToolBar();
 }
 
-function createBtnSub(){
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "uk-button-success uk-button circleBut uk-width-expand";
-    btn.innerHTML = "Submit";
-    btn.addEventListener("click", function(){processControl(this, 1);});
-    return btn;
+function createToolBar(){
+    var father = document.getElementById("content");
+    var pannelDiv = document.createElement("div");
+    pannelDiv.className = "uk-panel uk-panel-box uk-position-relative uk-width-1-6 uk-float-right";
+    // title;
+    var pannelTitle = document.createElement("h3");
+    pannelTitle.innerHTML = "Tools";
+    pannelDiv.append(pannelTitle);
+    // nav;
+    var nav = document.createElement("ul");
+    nav.className = "uk-nav uk-nav-side uk-nav-parent-icon";
+    nav.dataset.ukNav = "{multiple:true}";
+    // get elements;
+    $.ajax({
+        url: "php/template.php",
+        dataType: 'json',
+        method: 'POST',
+        data: {"type":"getEle"},
+        success: function(data){
+            if(data["status"] != null){
+                if(data["status"] == 200){
+                    for(var i=0; i<data["ele"].length; i++){
+                        var newLi = document.createElement("li");
+                        var newA = document.createElement("button");
+                        var icon = document.createElement("i");
+                        icon.className = "uk-icon-star";
+                        newA.append(icon);
+                        newA.innerHTML += data["ele"][i][0];
+                        newA.dataset.name = data["ele"][i][0];
+                        newA.dataset.des = data["ele"][i][1];
+                        newA.dataset.path = data["ele"][i][2];
+                        newA.dataset.input = data["ele"][i][3];
+                        newA.dataset.output = data["ele"][i][4];
+                        // newA.href = "";
+                        newA.addEventListener("click", function(){alert(this.dataset.input)});
+                        newLi.className = ""; // uk-parent if has subs;
+                        newLi.append(newA);
+                        nav.append(newLi);
+                    }
+                }else if(data["status"] == -1){
+                    alert("No available elements found!");
+                }
+            }
+        },
+        error: function(){
+            alert("[Error] Fail to post data!");
+        }
+    });
+
+
+    pannelDiv.append(nav);
+    father.append(pannelDiv);
+
 }
 
 // [Cite]
- function drawGrid(context,color,stepx,stepy){
+function drawGrid(context, color, stepx, stepy){
     context.strokeStyle = color;
     context.lineWidth = 0.5;
-    // var scale = context.zoom;
-    // stepx = stepx * scale;
-    // stepy = stepy * scale;
-    alert(context.canvas.width/stepx);
+    var scale = document.getElementById("scale");
+    scale = scale.innerHTML;
+    stepx *= scale;
+    stepy *= scale;
     for(var i = stepx+0.5;i<context.canvas.width;i+=stepx){
         context.beginPath();
         context.moveTo(i,0);
         context.lineTo(i,context.canvas.height);
         context.stroke();
     }
-
     for(var i = stepy+0.5;i<context.canvas.height;i+=stepy){
         context.beginPath();
         context.moveTo(0,i);
