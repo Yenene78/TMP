@@ -4,14 +4,18 @@ body{
 	background-attachment: fixed;
 }
 
-canvas{
+.canvas{
     background-color:#fff;
     margin-left:10px;
+    margin-right:10px;
     margin-top:10px;
     -webkit-box-shadow:4px 4px 8px rgba(0,0,0,0.5);
     -moz-box-shadow:4px 4px 8px rgba(0,0,0,0.5);
     -box-shadow:4px 4px 8px rgba(0,0,0,0.5);
+    background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%);
+    background-size: 10px 10px;
 }
+
 
 i{
 	margin:5px 5px 0px 0px;

@@ -1,3 +1,8 @@
+function addToCanvas(){
+    var father = document.getElementById("canvas");
+    // ele;
+    }
+
 function checkLogin(){
 	$.ajax({
         url: "php/account.php",
@@ -110,18 +115,14 @@ function createStep1(){
     var father = document.getElementById("tableBody");
     father.innerHTML = "";
     var row = document.createElement("tr");
-    // canvas;
-    var canvas = document.createElement("canvas");
-    canvas.className = "uk-width-expand uk-height-expand";
-    canvas.id = "canvas";
-    var context = canvas.getContext("2d");
-    // scaleDiv[display: none]:
-    var scaleDiv = document.getElementById("scale");
-    scaleDiv.innerHTML = 1;
-    // draw Grid;
-    drawGrid(context, "#ccc", 5, 5);
-    row.append(canvas);
     father.append(row);
+    // canvas;
+    var canvas = document.createElement("div"); 
+    canvas.className = "uk-height-expand canvas";
+    canvas.id = "canvas";
+    canvas.style.width = row.style.width;
+    canvas.style.height = "400px";
+    row.append(canvas);
     // icons;
     row = document.createElement("tr");
     var icon = document.createElement("i");
@@ -130,19 +131,11 @@ function createStep1(){
     icon1.className = "uk-icon-minus-square uk-margin-small";
     icon.addEventListener("click", function(){  // scale up;
         canvas = document.getElementById("canvas");
-        context = canvas.getContext("2d");
-        canvas.height = canvas.height;  // clear canvas;
-        var scaleDiv = document.getElementById("scale");
-        scaleDiv.innerHTML *= 2;
-        drawGrid(context, "#ccc", 5, 5);
+        alert("NON-complete");
     });
     icon1.addEventListener("click", function(){  // scale down;
         canvas = document.getElementById("canvas");
-        context = canvas.getContext("2d");
-        canvas.height = canvas.height;
-        var scaleDiv = document.getElementById("scale");
-        scaleDiv.innerHTML *= 0.5;
-        drawGrid(context, "#ccc", 5, 5);
+        alert("NON-complete");
     });
     row.append(icon);
     row.append(icon1);
@@ -150,6 +143,52 @@ function createStep1(){
     // create Tool Bars;
     createToolBar();
 }
+
+// function createStep1(){
+//     // title;
+//     document.getElementById("contentTitle").innerHTML = "Step1. Workflow";
+//     var father = document.getElementById("tableBody");
+//     father.innerHTML = "";
+//     var row = document.createElement("tr");
+//     // canvas;
+//     var canvas = document.createElement("canvas");
+//     canvas.className = "uk-width-expand uk-height-expand";
+//     canvas.id = "canvas";
+//     var context = canvas.getContext("2d");
+//     // scaleDiv[display: none]:
+//     var scaleDiv = document.getElementById("scale");
+//     scaleDiv.innerHTML = 1;
+//     // draw Grid;
+//     drawGrid(context, "#ccc", 5, 5);
+//     row.append(canvas);
+//     father.append(row);
+//     // icons;
+//     row = document.createElement("tr");
+//     var icon = document.createElement("i");
+//     var icon1 = document.createElement("i");
+//     icon.className = "uk-icon-plus-square uk-margin-small";
+//     icon1.className = "uk-icon-minus-square uk-margin-small";
+//     icon.addEventListener("click", function(){  // scale up;
+//         canvas = document.getElementById("canvas");
+//         context = canvas.getContext("2d");
+//         canvas.height = canvas.height;  // clear canvas;
+//         var scaleDiv = document.getElementById("scale");
+//         scaleDiv.innerHTML *= 2;
+//         drawGrid(context, "#ccc", 5, 5);
+//     });
+//     icon1.addEventListener("click", function(){  // scale down;
+//         canvas = document.getElementById("canvas");
+//         context = canvas.getContext("2d");
+//         canvas.height = canvas.height;
+//         var scaleDiv = document.getElementById("scale");
+//         scaleDiv.innerHTML *= 0.5;
+//         drawGrid(context, "#ccc", 5, 5);
+//     });
+//     row.append(icon);
+//     row.append(icon1);
+//     father.append(row);
+//     
+// }
 
 function createToolBar(){
     var father = document.getElementById("content");
@@ -185,7 +224,7 @@ function createToolBar(){
                         newA.dataset.input = data["ele"][i][3];
                         newA.dataset.output = data["ele"][i][4];
                         // newA.href = "";
-                        newA.addEventListener("click", function(){alert(this.dataset.input)});
+                        newA.addEventListener("click", function(){addToCanvas(this)});
                         newLi.className = ""; // uk-parent if has subs;
                         newLi.append(newA);
                         nav.append(newLi);
@@ -199,8 +238,6 @@ function createToolBar(){
             alert("[Error] Fail to post data!");
         }
     });
-
-
     pannelDiv.append(nav);
     father.append(pannelDiv);
 
