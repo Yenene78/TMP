@@ -1,7 +1,7 @@
 <?php
 
 	function connectDB(){
-		$con = mysqli_connect("localhost:3306", "root", "", "web");
+		$con = mysqli_connect("localhost:3308", "root", "", "web");
 		if(mysqli_connect_errno($con)){
 			die('Could not connect: ' . mysqli_error($con));
 		}
@@ -35,7 +35,6 @@
 		}
 		return $RET;
 	}
-
 
 	$con = connectDB();
 	$ret = array();

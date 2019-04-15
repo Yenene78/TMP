@@ -12,6 +12,28 @@
         <script type="text/javascript" src="js/vue.min.js"></script>
         <script type="text/javascript" src="js/vue-router.min.js"></script>
         <script type="text/javascript" src="js/template.js"></script>
+        <script type="text/javascript" src="js/jsplumb.js"></script>
+        <script type="text/javascript">
+            jsPlumb.ready(function () {
+               jsPlumb.setContainer('diagramContainer')
+                var common = {
+                    isSource: true,
+                    isTarget: true,
+                    connector: ['Straight']
+                }
+              // jsPlumb.addEndpoint('item_left', {
+              //   anchors: ['Right']
+              // }, common)
+
+              // jsPlumb.addEndpoint('item_right', {
+              //   anchor: 'Left'
+              // }, common)
+
+              // jsPlumb.addEndpoint('item_right', {
+              //   anchor: 'Right'
+              // }, common)
+            })
+        </script>
     </head>
 
     <body class="uk-scope bg" background="img/index_header.jpg" onload="checkLogin();">

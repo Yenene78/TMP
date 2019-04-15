@@ -1,60 +1,150 @@
+//获取实际的鼠标在canvas的位置
+function windowToCanvas(x, y) {
+    var canvas = document.getElementById("canvas");
+    var bbox = canvas.getBoundingClientRect();
+    return {
+        x : x - bbox.left * (canvas.getContext("2d").canvas.width / bbox.width),
+        y : y - bbox.top * (canvas.getContext("2d").canvas.height / bbox.width)
+    };
+}
+//画横线，在y坐标上
+function drawHorizontLine(y) {
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    context.beginPath();
+    context.moveTo(0, y+0.5);
+    context.lineTo(canvas.width, y+0.5);
+    context.stroke();
+}
+//保存当前的canvas上的数据
+function saveDrawingSurface() {
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    drawingSurfacsImageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+}
+//恢复canvas的数据，主要用来显示最新的线段，擦除原来的线段
+function restoreDrawingSurface() {
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    context.putImageData(drawingSurfacsImageData, 0, 0, 0, 0, context.canvas.width, context.canvas.height);
+}
+var lineData = Array();
+//画最新的线条
+function drawRubberbandShape(loc) {
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    context.strokeStyle = "#00BBEE";
+    context.beginPath();
+    context.moveTo(mousedown.x, mousedown.y);
+    context.lineTo(loc.x, loc.y);
+    context.stroke();
+    lineData.startx = mousedown.x;
+    lineData.starty = mousedown.y;
+    lineData.endx = loc.x;
+    lineData.endy = loc.y;
+}
+//更新
+function  updateRubberband(loc) {  
+    drawRubberbandShape(loc);
+}
 
 var pick = false;
 var dragging = false;
-var eleList = Array();
-var eleCounter = 0;
+var mousedown = {};
+var canLink = false;
+var drawingSurfacsImageData = null;
 function addToCanvas(tool){
     var father = document.getElementById("cvsDiv");
     // ele;
     var ele = document.createElement("div");
     ele.className = "element circleBut";
     ele.innerHTML = tool.dataset.des +"<br>" + tool.dataset.input + "<br>" + tool.dataset.output;
-    ele.id = eleCounter.toString();
-    ele.dataset.des = tool.dataset.des;
-    ele.dataset.input = tool.dataset.input;
-    ele.dataset.output = tool.dataset.output;
-    eleCounter += 1;
-    father.append(ele);
-    eleList.push();
-    console.log(ele.id);
-    var comSou = {
-        isSource: true,
-        connector: ["Straight"]
-    }
-    var comTar = {
-        isTarget: true,
-        connector: ["Straight"]
-    };
-    jsPlumb.ready(function(){
-        if(tool.dataset.input != "#"){
-            jsPlumb.addEndpoint(ele.id, {
-                anchors: ['Left']
-            }, comTar);
-        };
-        if(tool.dataset.output != "#"){
-            jsPlumb.addEndpoint(ele.id, {
-                anchors: ['Right']
-            }, comSou);
-        };
-        jsPlumb.draggable(ele.id);
-    });
-    jsPlumb.bind("beforeDrop", function(connInfo, originalEvent){
-        var source = document.getElementById(connInfo.connection.sourceId);
-        var target = document.getElementById(connInfo.connection.targetId);
-        console.log(connInfo);
-        if(source == target){
-            alert("Cannot connect to self!");
-            return false;
-        }else{
-            if(source.dataset.output != target.dataset.input){
-                alert("Type not fit!");
-                console.log(source.dataset.output, target.dataset.input);
-                return false;
+    ele.addEventListener("mousedown", function(e){
+        if(!dragging){
+            var distanceX = e.clientX - this.offsetLeft;
+            var distanceY = e.clientY - this.offsetTop;
+            document.onmousemove = function(e){
+                ele.style.left = e.clientX - distanceX + 'px';
+                ele.style.top = e.clientY - distanceY + 'px';
+            };
+            document.onmouseup = function(e){
+                document.onmousemove = null;
+                document.onmouseup = null;     
             }
         }
-        return true; 
     });
-}
+    // wings;
+    var wing0 = document.createElement("img");
+    wing0.className = "eleLink uk-position-absolute uk-position-right";
+    wing0.src = "img/link.png";
+    wing0.style.left = "45px";
+    wing0.style.top = "20px";
+    wing0.dataset.typeName = tool.dataset.output;
+    rotateDiv(wing0, "90");
+    var canvas = document.getElementById("canvas");
+    wing0.addEventListener("mousedown", function(e){
+        loc = windowToCanvas(e.clientX, e.clientY-this.offsetTop-90);
+        e.preventDefault();
+        saveDrawingSurface();
+        mousedown.x = loc.x;
+        mousedown.y = loc.y;
+        dragging = true;
+        father.onmousemove = function(e){
+            //判断当前是否用户在拖动
+            if(dragging) {
+                dragObj = wing0;
+                e.preventDefault();
+                loc = windowToCanvas(e.clientX, e.clientY-this.offsetTop-20);  
+                restoreDrawingSurface();
+                updateRubberband(loc);
+            }
+        };
+        father.onmouseup = function(e) {
+            if(canLink){
+                loc = windowToCanvas(e.clientX, e.clientY-this.offsetTop-20);
+                restoreDrawingSurface();
+                updateRubberband(loc);
+            }else{
+                // eraseLine();
+                restoreDrawingSurface();
+                console.log(lineData);
+                // for(var i=0; i<lineData.length; i++){
+                //     console.log(lineData[i]);
+                // }
+                // console.log(drawingSurfacsImageData);
+
+            }
+            //鼠标抬起，拖动标记设为否
+            dragging = false;
+            dragObj = null;
+            this.onmousemove = null;
+            this.onmouseup = null;
+        };
+    });
+    ele.append(wing0);
+    if(tool.dataset.input != "#"){
+        var wing1 = document.createElement("img");
+        wing1.className = "uk-position-absolute uk-position-right eleLink";
+        wing1.src = "img/link.png";
+        wing1.style.left = "-15px";
+        wing1.style.top = "20px";
+        wing1.dataset.typeName = tool.dataset.input;
+        rotateDiv(wing1, "-90");
+        wing1.addEventListener("mouseover", function(e){
+            if(dragging){
+                // check type:
+                if((dragObj) && (dragObj.dataset.typeName == this.dataset.typeName)){
+                    canLink = true;
+                }else{
+                    console.log("not fit");
+                }
+            }
+        });
+
+        ele.append(wing1);
+    }
+    father.append(ele);
+    }
 
 function checkLogin(){
 	$.ajax({
@@ -172,10 +262,21 @@ function createStep1(){
     father.append(row);
     // canvas;
     var cvsDiv = document.createElement("div"); 
-    cvsDiv.className = "uk-position-absolute canvas";
+    cvsDiv.className = "uk-position-absolute cvsDiv";
     cvsDiv.id = "cvsDiv";
     cvsDiv.style.width = row.style.width;
     cvsDiv.style.height = "400px";
+    var canvas = document.createElement("canvas");
+    canvas.className = "canvas";
+    canvas.style.position = "absolute";
+    canvas.id = "canvas";
+    canvas.width = "600";;
+    canvas.height = "400";
+    canvas.left = parseInt(cvsDiv.style.left);
+    canvas.top = parseInt(cvsDiv.style.top);
+    canvas.style.left = cvsDiv.style.left;
+    canvas.style.top = cvsDiv.style.top;
+    row.append(canvas);
     row.append(cvsDiv);
     // icons;
     row = document.createElement("tr");

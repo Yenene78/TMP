@@ -14,6 +14,25 @@ body{
     -box-shadow:4px 4px 8px rgba(0,0,0,0.5);
     background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%);
     background-size: 10px 10px;
+/*    background: #ffffff;
+				cursor: pointer;
+				margin-left: 10px;
+				margin-top: 10px;
+				-webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+				-moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+				-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);*/
+}
+
+.csvDiv{
+    background-color:#fff;
+    margin-left:10px;
+    margin-right:10px;
+    margin-top:10px;
+    -webkit-box-shadow:4px 4px 8px rgba(0,0,0,0.5);
+    -moz-box-shadow:4px 4px 8px rgba(0,0,0,0.5);
+    -box-shadow:4px 4px 8px rgba(0,0,0,0.5);
+    background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%);
+    background-size: 10px 10px;
 }
 
 
@@ -40,7 +59,7 @@ i{
 
 .circleBut{
 	border-radius: 8px;
-	font-size: 16px;
+	font-size: 8px;
 	padding: 1px 1px 1px 1px;
 	margin-top: 20px;
 }
@@ -51,4 +70,25 @@ i{
 	display: inline-block;
 	padding: 3px 6px;
 	text-align: right;
+}
+
+.element{
+	background-color: white;
+	width: 50px;
+	height: 50px;
+	position: absolute;
+	white-space:normal;
+    word-break:break-all;
+	word-wrap: break-word;
+	border:2px solid grey;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+}
+
+.eleLink{
+	width: 20px;
+	height: 20px;
+	position: absolute;
 }
