@@ -1,6 +1,32 @@
+var cookie = {
+    set:function(key,val,time){//设置cookie方法
+        var date=new Date(); //获取当前时间
+        var expiresDays=time;  //将date设置为n天以后的时间
+        date.setTime(date.getTime()+expiresDays*24*3600*1000); //格式化为cookie识别的时间
+        document.cookie=key + "=" + val +";expires="+date.toGMTString();  //设置cookie
+    },
+    get:function(key){//获取cookie方法
+        /*获取cookie参数*/
+        var getCookie = document.cookie.replace(/[ ]/g,"");  //获取cookie，并且将获得的cookie格式化，去掉空格字符
+        var arrCookie = getCookie.split(";")  //将获得的cookie以"分号"为标识 将cookie保存到arrCookie的数组中
+        var tips;  //声明变量tips
+        for(var i=0;i<arrCookie.length;i++){   //使用for循环查找cookie中的tips变量
+            var arr=arrCookie[i].split("=");   //将单条cookie用"等号"为标识，将单条cookie保存为arr数组
+            if(key==arr[0]){  //匹配变量名称，其中arr[0]是指的cookie名称，如果该条变量为tips则执行判断语句中的赋值操作
+                tips=arr[1];   //将cookie的值赋给变量tips
+                break;   //终止for循环遍历
+            }
+        }
+    },
+      delete:function(key){ //删除cookie方法
+         var date = new Date(); //获取当前时间
+         date.setTime(date.getTime()-10000); //将date设置为过去的时间
+         document.cookie = key + "=v; expires =" +date.toGMTString();//设置cookie
+         return tips;
+        }
+        
+    };
 
-var pick = false;
-var dragging = false;
 var eleList = Array();
 var eleCounter = 0;
 function addToCanvas(tool){
@@ -15,7 +41,7 @@ function addToCanvas(tool){
     ele.dataset.output = tool.dataset.output;
     eleCounter += 1;
     father.append(ele);
-    eleList.push();
+    eleList.push(ele);
     console.log(ele.id);
     var comSou = {
         isSource: true,
@@ -46,7 +72,7 @@ function addToCanvas(tool){
             alert("Cannot connect to self!");
             return false;
         }else{
-            if(source.dataset.output != target.dataset.input){
+            if((source.dataset.output != target.dataset.input) && (source.dataset.output != "*") && (target.dataset.input != "*")){
                 alert("Type not fit!");
                 console.log(source.dataset.output, target.dataset.input);
                 return false;
@@ -65,6 +91,7 @@ function checkLogin(){
         success: function(data){
         	if(data["status"] != null){
         		if(data["status"] == 200){
+                    cookie.set("user", data["user"], 1);
                     listTem();
         		}else if(data["status"] == -1){
         			window.location.href = "login.html";
@@ -83,7 +110,31 @@ function createBtnSub(){
     btn.type = "button";
     btn.className = "uk-button-success uk-button circleBut uk-width-expand";
     btn.innerHTML = "Submit";
-    btn.addEventListener("click", function(){processControl(this, 1);});
+    btn.addEventListener("click", function(){
+        var name = document.getElementById("step0Name");
+        var des= document.getElementById("step0Des");
+        $.ajax({
+            url: "php/template.php",
+            dataType: 'json',
+            method: 'POST',
+            data: {"type":"create", "name":name.value, "des":des.value, "user":document.cookie.get["user"]},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        processControl(this, 1);
+                    }else if(data["status"] == -1){
+                        alert("Invalid Input!");
+                        processControl(this, 0);
+                    }
+                }
+            },
+            error: function(){
+                alert("[Error] Fail to post data!");
+                processControl(this, 0);
+            }
+        });
+        
+    });
     return btn;
 }
 
@@ -142,6 +193,7 @@ function createStep0(){
     row.append(name);
     var nameDiv = document.createElement("input");
     nameDiv.className = "field";
+    nameDiv.id = "step0Name";
     row.append(insertTd(nameDiv));
     father.append(row);
     // description div;
@@ -154,6 +206,7 @@ function createStep0(){
     description.style.overflow = "hidden";
     description.cols = "50";
     description.rows = "5";
+    description.id = "step0Des";
     row.append(insertTd(description));
     father.append(row);
     // button div;
@@ -231,12 +284,20 @@ function createToolBar(){
                         newA.dataset.path = data["ele"][i][2];
                         newA.dataset.input = data["ele"][i][3];
                         newA.dataset.output = data["ele"][i][4];
-                        // newA.href = "";
                         newA.addEventListener("click", function(){addToCanvas(this)});
-                        newLi.className = ""; // uk-parent if has subs;
+                        newA.className = "tools circleBut"; // uk-parent if has subs;
                         newLi.append(newA);
                         nav.append(newLi);
                     }
+                    // create submit btn;
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "uk-button-success uk-button circleBut uk-width-expand";
+                    btn.innerHTML = "Submit";
+                    btn.addEventListener("click", function(){
+                        submitTem();
+                    });
+                    nav.append(btn);
                 }else if(data["status"] == -1){
                     alert("No available elements found!");
                 }
@@ -249,28 +310,6 @@ function createToolBar(){
     pannelDiv.append(nav);
     father.append(pannelDiv);
 
-}
-
-// [Cite]
-function drawGrid(context, color, stepx, stepy){
-    context.strokeStyle = color;
-    context.lineWidth = 0.5;
-    var scale = document.getElementById("scale");
-    scale = scale.innerHTML;
-    stepx *= scale;
-    stepy *= scale;
-    for(var i = stepx+0.5;i<context.canvas.width;i+=stepx){
-        context.beginPath();
-        context.moveTo(i,0);
-        context.lineTo(i,context.canvas.height);
-        context.stroke();
-    }
-    for(var i = stepy+0.5;i<context.canvas.height;i+=stepy){
-        context.beginPath();
-        context.moveTo(0,i);
-        context.lineTo(context.canvas.width,i);
-        context.stroke();
-    }
 }
 
 function insertTd(ele){
@@ -349,4 +388,45 @@ function rotateDiv(div, deg){
     div.style.msTransform = "rotate("+deg+"deg)";
     div.style.oTransform = "rotate("+deg+"deg)";
     div.style.transform = "rotate("+deg+"deg)";
+}
+
+
+function validateFlow(){
+    if((jsPlumb.getAllConnections().length == 0) || (jsPlumb.getAllConnections().length <= eleList.length-2)){
+        return false;
+    }
+    return true;
+}
+
+function submitTem(){
+    if(validateFlow()){
+        alert("link");
+        $.each(jsPlumb.getAllConnections(),function(i,e){
+            console.log(e.endpoints);
+            // startId = e.endpoints[0].anchor.elementId;
+            // endId = e.endpoints[1]
+            // console.log();//开始位置
+            // console.log(e.endpoints[1].anchor.elementId);//结束位置
+        })
+        // $.ajax({
+        //     url: "php/template.php",
+        //     dataType: 'json',
+        //     method: 'POST',
+        //     data: {"type":"save"},
+        //     success: function(data){
+        //         if(data["status"] != null){
+        //             if(data["status"] == 200){
+        //                 alert("Success!");
+        //             }else if(data["status"] == -1){
+        //                 alert("[Error] Database");
+        //             }
+        //         }
+        //     },
+        //     error: function(){
+        //         alert("[Error] Fail to post data!");
+        //     }
+        // });
+    }else{
+        alert("Validation fail.");
+    }
 }
