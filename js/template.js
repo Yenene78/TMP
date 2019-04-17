@@ -1,32 +1,34 @@
+
+//// cookie;
 var cookie = {
-    set:function(key,val,time){//设置cookie方法
-        var date=new Date(); //获取当前时间
-        var expiresDays=time;  //将date设置为n天以后的时间
-        date.setTime(date.getTime()+expiresDays*24*3600*1000); //格式化为cookie识别的时间
-        document.cookie=key + "=" + val +";expires="+date.toGMTString();  //设置cookie
+    set:function(key, val, time){
+        var date = new Date();
+        var expiresDays = time;
+        date.setTime(date.getTime()+expiresDays*24*3600*1000);
+        document.cookie = key + "=" + val +";expires=" + date.toGMTString();
     },
-    get:function(key){//获取cookie方法
-        /*获取cookie参数*/
-        var getCookie = document.cookie.replace(/[ ]/g,"");  //获取cookie，并且将获得的cookie格式化，去掉空格字符
-        var arrCookie = getCookie.split(";")  //将获得的cookie以"分号"为标识 将cookie保存到arrCookie的数组中
-        var tips;  //声明变量tips
-        for(var i=0;i<arrCookie.length;i++){   //使用for循环查找cookie中的tips变量
-            var arr=arrCookie[i].split("=");   //将单条cookie用"等号"为标识，将单条cookie保存为arr数组
-            if(key==arr[0]){  //匹配变量名称，其中arr[0]是指的cookie名称，如果该条变量为tips则执行判断语句中的赋值操作
-                tips=arr[1];   //将cookie的值赋给变量tips
-                break;   //终止for循环遍历
+    get:function(key){
+        var getCookie = document.cookie.replace(/[ ]/g,"");
+        var arrCookie = getCookie.split(";")
+        var tips;
+        for(var i=0; i<arrCookie.length; i++){
+            var arr = arrCookie[i].split("="); 
+            if(key==arr[0]){
+                tips = arr[1];
+                break;
             }
         }
+        return tips;
     },
-      delete:function(key){ //删除cookie方法
-         var date = new Date(); //获取当前时间
-         date.setTime(date.getTime()-10000); //将date设置为过去的时间
-         document.cookie = key + "=v; expires =" +date.toGMTString();//设置cookie
-         return tips;
-        }
-        
-    };
+    delete:function(key){
+        var date = new Date();
+        date.setTime(date.getTime()-10000);
+        document.cookie = key + "=v; expires =" + date.toGMTString();
+        return tips;
+    }
+};
 
+//// get info of tool && add to canvas;
 var eleList = Array();
 var eleCounter = 0;
 function addToCanvas(tool){
@@ -35,14 +37,13 @@ function addToCanvas(tool){
     var ele = document.createElement("div");
     ele.className = "element circleBut";
     ele.innerHTML = tool.dataset.des +"<br>" + tool.dataset.input + "<br>" + tool.dataset.output;
-    ele.id = eleCounter.toString();
+    ele.id = "ele_" + tool.dataset.name;
+    ele.dataset.name = tool.dataset.name;
     ele.dataset.des = tool.dataset.des;
     ele.dataset.input = tool.dataset.input;
     ele.dataset.output = tool.dataset.output;
-    eleCounter += 1;
     father.append(ele);
     eleList.push(ele);
-    console.log(ele.id);
     var comSou = {
         isSource: true,
         connector: ["Straight"]
@@ -54,20 +55,22 @@ function addToCanvas(tool){
     jsPlumb.ready(function(){
         if(tool.dataset.input != "#"){
             jsPlumb.addEndpoint(ele.id, {
-                anchors: ['Left']
+                anchors: ['Left'],
+                uuid: ele.id + "_input",
             }, comTar);
         };
         if(tool.dataset.output != "#"){
             jsPlumb.addEndpoint(ele.id, {
-                anchors: ['Right']
+                anchors: ['Right'],
+                uuid: ele.id + "_output",
             }, comSou);
         };
+        console.log(ele.id);
         jsPlumb.draggable(ele.id);
     });
     jsPlumb.bind("beforeDrop", function(connInfo, originalEvent){
         var source = document.getElementById(connInfo.connection.sourceId);
         var target = document.getElementById(connInfo.connection.targetId);
-        console.log(connInfo);
         if(source == target){
             alert("Cannot connect to self!");
             return false;
@@ -82,6 +85,8 @@ function addToCanvas(tool){
     });
 }
 
+//// chack login status;
+// todo: better;
 function checkLogin(){
 	$.ajax({
         url: "php/account.php",
@@ -105,11 +110,13 @@ function checkLogin(){
     });
 }
 
+//// [step0] create a submit button;
 function createBtnSub(){
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "uk-button-success uk-button circleBut uk-width-expand";
     btn.innerHTML = "Submit";
+    btn.id = "step0Btn";
     btn.addEventListener("click", function(){
         var name = document.getElementById("step0Name");
         var des= document.getElementById("step0Des");
@@ -117,27 +124,43 @@ function createBtnSub(){
             url: "php/template.php",
             dataType: 'json',
             method: 'POST',
-            data: {"type":"create", "name":name.value, "des":des.value, "user":document.cookie.get["user"]},
+            data: {"type":"create", "name":name.value, "des":des.value, "user": cookie.get("user")},
             success: function(data){
                 if(data["status"] != null){
                     if(data["status"] == 200){
-                        processControl(this, 1);
+                        processControl(1);
                     }else if(data["status"] == -1){
-                        alert("Invalid Input!");
-                        processControl(this, 0);
+                        alert("Existed Template!");
+                    }else if(data["status"] == -2){
+                        alert("Invalid input!");
                     }
                 }
             },
             error: function(){
                 alert("[Error] Fail to post data!");
-                processControl(this, 0);
             }
         });
-        
     });
     return btn;
 }
 
+//// add elements according to the linkList;
+function createLink(start, end){
+    startId = "tool_" + start;
+    endId = "tool_" + end;
+    if(!document.getElementById("ele_"+start)){
+        addToCanvas(document.getElementById(startId));
+    }
+    if(!document.getElementById("ele_"+end)){
+        addToCanvas(document.getElementById(endId));
+    }
+    // link;
+    jsPlumb.connect({
+        uuids: ["ele_" + start + "_output", "ele_" + end + "_input"],
+    });
+}
+
+//// get elements list from DB;
 function createTem(btn){
     btn.style.display = "none";
     var father = document.getElementById("contentList");
@@ -168,11 +191,10 @@ function createTem(btn){
                         curOption.innerHTML = data["ele"][i][0];
                         curDiv1.append(curOption);
                     }
-
                     curDiv.append(curDiv1);
                     father.append(curDiv);
                 }else if(data["status"] == -1){
-                    
+                    alert("error");
                 }
             }
         },
@@ -182,6 +204,7 @@ function createTem(btn){
     });
 }
 
+//// [step0] create routine;
 function createStep0(){
     // title;
     document.getElementById("contentTitle").innerHTML = "Step0. Basic Information";
@@ -215,6 +238,7 @@ function createStep0(){
     father.append(row);
 }
 
+//// [step1] create routine;
 function createStep1(){
     // title;
     document.getElementById("contentTitle").innerHTML = "Step1. Workflow";
@@ -249,8 +273,18 @@ function createStep1(){
     father.append(row);
     // create Tool Bars;
     createToolBar();
+    //// todo;
+    // create eles -> createLink:
+    var curLink = "";
+    if(linkList != null){
+        for(var i=0; i<linkList.length; i++){
+            curLink = linkList[i][0].split(":");
+            createLink(curLink[0], curLink[1]);
+        }
+    }
 }
 
+//// [step1] create tool bar by achieving elements from DB;
 function createToolBar(){
     var father = document.getElementById("content");
     var pannelDiv = document.createElement("div");
@@ -268,10 +302,12 @@ function createToolBar(){
         url: "php/template.php",
         dataType: 'json',
         method: 'POST',
+        async: false, 
         data: {"type":"getEle"},
         success: function(data){
             if(data["status"] != null){
                 if(data["status"] == 200){
+                    // create tools;
                     for(var i=0; i<data["ele"].length; i++){
                         var newLi = document.createElement("li");
                         var newA = document.createElement("button");
@@ -279,12 +315,13 @@ function createToolBar(){
                         icon.className = "uk-icon-star";
                         newA.append(icon);
                         newA.innerHTML += data["ele"][i][0];
+                        newA.id = "tool_" + data["ele"][i][0];
                         newA.dataset.name = data["ele"][i][0];
                         newA.dataset.des = data["ele"][i][1];
                         newA.dataset.path = data["ele"][i][2];
                         newA.dataset.input = data["ele"][i][3];
                         newA.dataset.output = data["ele"][i][4];
-                        newA.addEventListener("click", function(){addToCanvas(this)});
+                        newA.addEventListener("click", function(){addToCanvas(this); console.log("adding: " + this.id);});
                         newA.className = "tools circleBut"; // uk-parent if has subs;
                         newLi.append(newA);
                         nav.append(newLi);
@@ -293,7 +330,7 @@ function createToolBar(){
                     var btn = document.createElement("button");
                     btn.type = "button";
                     btn.className = "uk-button-success uk-button circleBut uk-width-expand";
-                    btn.innerHTML = "Submit";
+                    btn.innerHTML = "Save";
                     btn.addEventListener("click", function(){
                         submitTem();
                     });
@@ -312,12 +349,14 @@ function createToolBar(){
 
 }
 
+//// insert cur element into a <tr>;
 function insertTd(ele){
     var td = document.createElement("td");
     td.append(ele);
     return td;
 }
 
+//// check with DB about templates info -> loadTemplate;
 function listTem(){
 	$.ajax({
         url: "php/template.php",
@@ -339,6 +378,8 @@ function listTem(){
     });
 }
 
+//// list out all available templates;
+var linkList = null;
 function loadTemplate(tem){
     if(tem.length == 0){
         var contentTitle = document.getElementById("contentTitle");
@@ -350,7 +391,30 @@ function loadTemplate(tem){
         for(var i=0; i<tem.length; i++){
             var newLi = document.createElement("li");
             var child = document.createElement("a");
-            child.href = "#";
+            child.innerHTML = tem[i];
+            child.onclick = function(){
+                alert(1);
+                $.ajax({
+                    url: "php/template.php",
+                    dataType: 'json',
+                    method: 'POST',
+                    data: {"type":"load", "temName":this.innerHTML},
+                    success: function(data){
+                        if(data["status"] != null){
+                            if(data["status"] == 200){
+                                linkList = data["link"];
+                                processControl(1);
+                                console.log(linkList);
+                            }else if(data["status"] == -1){
+                                alert("fail");
+                            }    
+                        }
+                    },
+                    error: function(){
+                        alert("[Error] Fail to post data!");
+                    }
+                });
+            }
             child.innerHTML = tem[i];
             newLi.append(child);
             leftTab.append(newLi);
@@ -363,15 +427,14 @@ function loadTemplate(tem){
     emptyBut.className = "uk-button uk-button-success uk-width-1-3 circleBut";
     emptyBut.type = "button";
     emptyBut.innerHTML = "Create";
-    emptyBut.addEventListener("click", function(){processControl(this, 0);});
+    emptyBut.addEventListener("click", function(){processControl(0); this.style.display = "none";});
     var father = document.getElementById("contentList");
     newLi.append(emptyBut);
     father.append(newLi);
 }
 
-
-function processControl(btn, step){
-    btn.style.display = "none";
+//// controller;
+function processControl(step){
     switch(step){
         case 0:
             createStep0();
@@ -382,15 +445,18 @@ function processControl(btn, step){
     }
 }
 
-function rotateDiv(div, deg){
-    div.style.webkitTransform = "rotate("+deg+"deg)";
-    div.style.mozTransform = "rotate("+deg+"deg)";
-    div.style.msTransform = "rotate("+deg+"deg)";
-    div.style.oTransform = "rotate("+deg+"deg)";
-    div.style.transform = "rotate("+deg+"deg)";
-}
+// //// 
+// function rotateDiv(div, deg){
+//     div.style.webkitTransform = "rotate("+deg+"deg)";
+//     div.style.mozTransform = "rotate("+deg+"deg)";
+//     div.style.msTransform = "rotate("+deg+"deg)";
+//     div.style.oTransform = "rotate("+deg+"deg)";
+//     div.style.transform = "rotate("+deg+"deg)";
+// }
 
 
+//// [step1] validate workflow;
+// todo: better validation rules;
 function validateFlow(){
     if((jsPlumb.getAllConnections().length == 0) || (jsPlumb.getAllConnections().length <= eleList.length-2)){
         return false;
@@ -398,34 +464,37 @@ function validateFlow(){
     return true;
 }
 
+//// [step1] -> [step2] save current created/edited template into DB;
 function submitTem(){
     if(validateFlow()){
         alert("link");
+        var startId = null;
+        var endId = null;
+        var list = Array();
         $.each(jsPlumb.getAllConnections(),function(i,e){
-            console.log(e.endpoints);
-            // startId = e.endpoints[0].anchor.elementId;
-            // endId = e.endpoints[1]
-            // console.log();//开始位置
-            // console.log(e.endpoints[1].anchor.elementId);//结束位置
+            startId = e.endpoints[0].anchor.elementId;
+            endId = e.endpoints[1].anchor.elementId;
+            list.push(document.getElementById(startId).dataset.name + ":" + document.getElementById(endId).dataset.name);
         })
-        // $.ajax({
-        //     url: "php/template.php",
-        //     dataType: 'json',
-        //     method: 'POST',
-        //     data: {"type":"save"},
-        //     success: function(data){
-        //         if(data["status"] != null){
-        //             if(data["status"] == 200){
-        //                 alert("Success!");
-        //             }else if(data["status"] == -1){
-        //                 alert("[Error] Database");
-        //             }
-        //         }
-        //     },
-        //     error: function(){
-        //         alert("[Error] Fail to post data!");
-        //     }
-        // });
+        console.log(list);
+        $.ajax({
+            url: "php/template.php",
+            dataType: 'json',
+            method: 'POST',
+            data: {"type":"save", "list":list},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        alert("Success!");
+                    }else if(data["status"] == -1){
+                        alert("[Error] Database");
+                    }
+                }
+            },
+            error: function(){
+                alert("[Error] Fail to post data!");
+            }
+        });
     }else{
         alert("Validation fail.");
     }

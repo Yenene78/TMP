@@ -1,7 +1,7 @@
 <?php
 
 	function connectDB(){
-		$con = mysqli_connect("localhost:3306", "root", "", "web");
+		$con = mysqli_connect("localhost:3308", "root", "", "web");
 		if(mysqli_connect_errno($con)){
 			die('Could not connect: ' . mysqli_error($con));
 		}
@@ -9,17 +9,26 @@
 	}
 
 	function createTem($con, $RET){
-		$query = "select * from template_basic where templateName ==". $_POST['name'];
-		$ret = mysqli_query($con, $query);
-		if($ret->num_rows != 0){
+		// validate:
+		if((empty($_POST["name"])) || (empty($_POST["des"])) || (empty($_POST["user"]))){
 			$RET["status"] = -1;
 		}else{
-			$query = "select * from template_basic;";
+			$query = "select * from template_basic where templateName =". $_POST['name'];
 			$ret = mysqli_query($con, $query);
-			$query = "insert into template_basic (templateName, description, userName, temLinkName) values (".$_POST["num"].",".$_POST["des"].","123", ".$ret->num_rows.");";
-			$ret = mysqli_query($con, $query);
-			$RET["status"] = $ret;
+			if($ret->num_rows != 0){
+				$RET["status"] = -1;
+			}else{
+				$query = "select * from template_basic;";
+				$ret = mysqli_query($con, $query);
+				$query = "insert into template_basic (templateName, description, userName, temLinkName) values (".$_POST["name"].",".$_POST["des"].",".$_POST["user"].", ".$ret->num_rows.");";
+				$ret = mysqli_query($con, $query);
+				$RET["status"] = 200;
+				session_start();
+				$_SESSION["temName"] = $_POST["name"];
+				$_SESSION["temDes"] = $_POST["des"];
+			}
 		}
+		return $RET;
 	}
 
 	function getElement($con, $RET){
@@ -50,8 +59,41 @@
 		return $RET;
 	}
 
+	function loadTem($con, $RET){
+		$tableName = "temtable"."_".$_POST["temName"];
+		$query = "select * from ".$tableName.";";
+		$ret = mysqli_query($con, $query);
+		if($ret){
+			$RET["status"] = 200;
+			$RET["link"] = mysqli_fetch_all($ret);
+		}else{
+			$RET["status"] = -1;
+		}
+		return $RET;
+	}
+
 	function saveTem($con, $RET){
-		$query = "select * from template_basic where nam";
+		session_start();
+		$list = $_POST["list"];
+		$tableName = "temTable"."_".$_SESSION["temName"];
+		$query = "drop table if exists ".$tableName;
+		$ret = mysqli_query($con, $query);
+		$query = "create table ".$tableName."(link varchar(32));";
+		$ret = mysqli_query($con, $query);
+		if($ret){
+			foreach($list as $v){
+				$query = "insert into ".$tableName."(link) values ('".$v."');";
+				$ret = mysqli_query($con, $query);
+				if(!$ret){
+					$RET["status"] = -1;
+					break;
+				}
+			}
+			$RET["status"] = 200;
+		}else{
+			$RET["status"] = -1;
+		}
+		return $RET;
 	}
 
 	$con = connectDB();
@@ -72,6 +114,9 @@
 				break;
 			case "save":
 				$ret = saveTem($con, $ret);
+				break;
+			case "load":
+				$ret = loadTem($con, $ret);
 				break;
 			default:
 				# code...
