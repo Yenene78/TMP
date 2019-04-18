@@ -70,7 +70,7 @@ i{
 	margin-left: 2px;
 	display: inline-block;
 	padding: 3px 6px;
-	text-align: right;
+	/*text-align: right;*/
 }
 
 .element{
@@ -97,4 +97,11 @@ i{
 
 .tools{
 	width: 100px;
+}
+
+.dropdown{
+	vertical-align: top;
+	display: inline-block;
+	padding: 3px 6px;
+	width: 200px;
 }

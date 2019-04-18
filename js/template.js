@@ -181,50 +181,6 @@ function createLink(start, end){
     });
 }
 
-// //// get elements list from DB;
-// function createTem(btn){
-//     btn.style.display = "none";
-//     var father = document.getElementById("contentList");
-//     var dic = {"Name":"input", "Description":"input"}; // default info;
-//     for(var x in dic){
-//         var curDiv = document.createElement("li");
-//         curDiv.innerHTML = x;
-//         var cur = document.createElement(dic[x]);
-//         curDiv.append(cur);
-//         father.append(curDiv);
-//     };
-//     $.ajax({
-//         url: "php/template.php",
-//         dataType: 'json',
-//         method: 'POST',
-//         data: {"type":"getEle"},
-//         success: function(data){
-//             if(data["status"] != null){
-//                 if(data["status"] == 200){
-//                     var curDiv = document.createElement("div");
-//                     curDiv.innerHTML = "Element:";
-//                     var curDiv1 = document.createElement("select");
-//                     curDiv1.id = "eleList";
-//                     curDiv1.className = "uk-width-1-3";
-//                     curDiv1.innerHTML = "<option value=\"\" style=\"display: none;\" disabled selected>Choose Elements</option>";
-//                     for(var i=0; i<data["ele"].length; i++){
-//                         var curOption = document.createElement("option");
-//                         curOption.innerHTML = data["ele"][i][0];
-//                         curDiv1.append(curOption);
-//                     }
-//                     curDiv.append(curDiv1);
-//                     father.append(curDiv);
-//                 }else if(data["status"] == -1){
-//                     alert("error");
-//                 }
-//             }
-//         },
-//         error: function(){
-//             alert("[Error] Fail to post data!");
-//         }
-//     });
-// }
-
 //// [step0] create routine;
 function createStep0(){
     // title;
@@ -426,6 +382,7 @@ function listTem(){
         			loadTemplate(data["tem"]);
         		}else if(data["status"] == -1){
         			document.getElementById("contentTitle").innerHTML = "<b>Warning: No available template.</b>";
+                    loadTemplate(data["tem"]);
         		}    
         	}
         },

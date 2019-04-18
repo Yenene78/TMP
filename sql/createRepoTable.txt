@@ -6,6 +6,7 @@ create table repo_basic(
 	repoName varchar(16),
 	description varchar(100),
 	userName varchar(16),
+	repoId Integer,
 	input varchar(32),
 	output varchar(32),
 	PRIMARY KEY(repoName),
