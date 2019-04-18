@@ -1,4 +1,3 @@
-
 //// cookie;
 var cookie = {
     set:function(key, val, time){
@@ -36,12 +35,34 @@ function addToCanvas(tool){
     // ele;
     var ele = document.createElement("div");
     ele.className = "element circleBut";
-    ele.innerHTML = tool.dataset.des +"<br>" + tool.dataset.input + "<br>" + tool.dataset.output;
+    ele.innerHTML = tool.dataset.name + "<br>" + "<FONT color=#C0C0C0>"+ tool.dataset.des + "</FONT>";
     ele.id = "ele_" + tool.dataset.name;
     ele.dataset.name = tool.dataset.name;
     ele.dataset.des = tool.dataset.des;
     ele.dataset.input = tool.dataset.input;
     ele.dataset.output = tool.dataset.output;
+    ele.addEventListener("mousedown", function(e){  // delete;
+        if(e.button == 2){
+            jsPlumb.removeAllEndpoints($(this).attr("id"));
+            eleList.pop(this);
+            this.parentNode.removeChild(this);
+        }
+    });
+    ele.dataset.ukTooltip = ""; // hover;
+    // text translation for better understanding;
+    var inputText = tool.dataset.input;
+    var outputText = tool.dataset.output;
+    tmpDic = {"*":"anything", "#":"None"};
+    if(tmpDic[inputText]){
+        inputText = tmpDic[inputText];
+    };
+    if(tmpDic[outputText]){
+        inputText = tmpDic[outputText];
+    };
+    var eleTitle = inputText+"<br>"+outputText;
+    ele.title = eleTitle;
+    //// todo;
+    // ele.addEventListener("", callback: EventListener, capture?: boolean)
     father.append(ele);
     eleList.push(ele);
     var comSou = {
@@ -160,49 +181,49 @@ function createLink(start, end){
     });
 }
 
-//// get elements list from DB;
-function createTem(btn){
-    btn.style.display = "none";
-    var father = document.getElementById("contentList");
-    var dic = {"Name":"input", "Description":"input"}; // default info;
-    for(var x in dic){
-        var curDiv = document.createElement("li");
-        curDiv.innerHTML = x;
-        var cur = document.createElement(dic[x]);
-        curDiv.append(cur);
-        father.append(curDiv);
-    };
-    $.ajax({
-        url: "php/template.php",
-        dataType: 'json',
-        method: 'POST',
-        data: {"type":"getEle"},
-        success: function(data){
-            if(data["status"] != null){
-                if(data["status"] == 200){
-                    var curDiv = document.createElement("div");
-                    curDiv.innerHTML = "Element:";
-                    var curDiv1 = document.createElement("select");
-                    curDiv1.id = "eleList";
-                    curDiv1.className = "uk-width-1-3";
-                    curDiv1.innerHTML = "<option value=\"\" style=\"display: none;\" disabled selected>Choose Elements</option>";
-                    for(var i=0; i<data["ele"].length; i++){
-                        var curOption = document.createElement("option");
-                        curOption.innerHTML = data["ele"][i][0];
-                        curDiv1.append(curOption);
-                    }
-                    curDiv.append(curDiv1);
-                    father.append(curDiv);
-                }else if(data["status"] == -1){
-                    alert("error");
-                }
-            }
-        },
-        error: function(){
-            alert("[Error] Fail to post data!");
-        }
-    });
-}
+// //// get elements list from DB;
+// function createTem(btn){
+//     btn.style.display = "none";
+//     var father = document.getElementById("contentList");
+//     var dic = {"Name":"input", "Description":"input"}; // default info;
+//     for(var x in dic){
+//         var curDiv = document.createElement("li");
+//         curDiv.innerHTML = x;
+//         var cur = document.createElement(dic[x]);
+//         curDiv.append(cur);
+//         father.append(curDiv);
+//     };
+//     $.ajax({
+//         url: "php/template.php",
+//         dataType: 'json',
+//         method: 'POST',
+//         data: {"type":"getEle"},
+//         success: function(data){
+//             if(data["status"] != null){
+//                 if(data["status"] == 200){
+//                     var curDiv = document.createElement("div");
+//                     curDiv.innerHTML = "Element:";
+//                     var curDiv1 = document.createElement("select");
+//                     curDiv1.id = "eleList";
+//                     curDiv1.className = "uk-width-1-3";
+//                     curDiv1.innerHTML = "<option value=\"\" style=\"display: none;\" disabled selected>Choose Elements</option>";
+//                     for(var i=0; i<data["ele"].length; i++){
+//                         var curOption = document.createElement("option");
+//                         curOption.innerHTML = data["ele"][i][0];
+//                         curDiv1.append(curOption);
+//                     }
+//                     curDiv.append(curDiv1);
+//                     father.append(curDiv);
+//                 }else if(data["status"] == -1){
+//                     alert("error");
+//                 }
+//             }
+//         },
+//         error: function(){
+//             alert("[Error] Fail to post data!");
+//         }
+//     });
+// }
 
 //// [step0] create routine;
 function createStep0(){
@@ -240,6 +261,9 @@ function createStep0(){
 
 //// [step1] create routine;
 function createStep1(){
+    // display previous btn;
+    var emptyBtn = document.getElementById("step0EmptyBtn");
+    emptyBtn.style.display = "none";
     // title;
     document.getElementById("contentTitle").innerHTML = "Step1. Workflow";
     var father = document.getElementById("tableBody");
@@ -253,6 +277,9 @@ function createStep1(){
     cvsDiv.id = "cvsDiv";
     cvsDiv.style.width = row.style.width;
     cvsDiv.style.height = "400px";
+    cvsDiv.oncontextmenu = function(e){
+    　　return false;
+    }
     row.append(cvsDiv);
     // icons;
     row = document.createElement("tr");
@@ -273,7 +300,6 @@ function createStep1(){
     father.append(row);
     // create Tool Bars;
     createToolBar();
-    //// todo;
     // create eles -> createLink:
     var curLink = "";
     if(linkList != null){
@@ -335,6 +361,15 @@ function createToolBar(){
                         submitTem();
                     });
                     nav.append(btn);
+                    // create delete btn;
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "uk-button-success uk-button circleBut uk-width-expand";
+                    btn.innerHTML = "Delete";
+                    btn.addEventListener("click", function(){
+                        deleteTem();
+                    });
+                    nav.append(btn);
                 }else if(data["status"] == -1){
                     alert("No available elements found!");
                 }
@@ -346,7 +381,29 @@ function createToolBar(){
     });
     pannelDiv.append(nav);
     father.append(pannelDiv);
+}
 
+//// delete current template;
+function deleteTem(){
+    $.ajax({
+        url: "php/template.php",
+        dataType: 'json',
+        method: 'POST',
+        data: {"type":"delete"},
+        success: function(data){
+            if(data["status"] != null){
+                if(data["status"] == 200){
+                    alert("Success!");
+                    window.location.reload(); 
+                }else if(data["status"] == -1){
+                    alert("[Error] Database");
+                }
+            }
+        },
+        error: function(){
+            alert("[Error] Fail to post data!");
+        }
+    });
 }
 
 //// insert cur element into a <tr>;
@@ -393,7 +450,6 @@ function loadTemplate(tem){
             var child = document.createElement("a");
             child.innerHTML = tem[i];
             child.onclick = function(){
-                alert(1);
                 $.ajax({
                     url: "php/template.php",
                     dataType: 'json',
@@ -404,7 +460,6 @@ function loadTemplate(tem){
                             if(data["status"] == 200){
                                 linkList = data["link"];
                                 processControl(1);
-                                console.log(linkList);
                             }else if(data["status"] == -1){
                                 alert("fail");
                             }    
@@ -422,14 +477,15 @@ function loadTemplate(tem){
         var contentTitle = document.getElementById("contentTitle");
         contentTitle.innerHTML = "Choose/Create a template.";
     }
-    var emptyBut = document.createElement("button");
+    var emptyBtn = document.createElement("button");
     var newLi = document.createElement("tr");
-    emptyBut.className = "uk-button uk-button-success uk-width-1-3 circleBut";
-    emptyBut.type = "button";
-    emptyBut.innerHTML = "Create";
-    emptyBut.addEventListener("click", function(){processControl(0); this.style.display = "none";});
+    emptyBtn.id = "step0EmptyBtn";
+    emptyBtn.className = "uk-button uk-button-success uk-width-1-3 circleBut";
+    emptyBtn.type = "button";
+    emptyBtn.innerHTML = "Create";
+    emptyBtn.addEventListener("click", function(){processControl(0); this.style.display = "none";});
     var father = document.getElementById("contentList");
-    newLi.append(emptyBut);
+    newLi.append(emptyBtn);
     father.append(newLi);
 }
 
@@ -444,15 +500,6 @@ function processControl(step){
             break;
     }
 }
-
-// //// 
-// function rotateDiv(div, deg){
-//     div.style.webkitTransform = "rotate("+deg+"deg)";
-//     div.style.mozTransform = "rotate("+deg+"deg)";
-//     div.style.msTransform = "rotate("+deg+"deg)";
-//     div.style.oTransform = "rotate("+deg+"deg)";
-//     div.style.transform = "rotate("+deg+"deg)";
-// }
 
 
 //// [step1] validate workflow;
@@ -476,7 +523,6 @@ function submitTem(){
             endId = e.endpoints[1].anchor.elementId;
             list.push(document.getElementById(startId).dataset.name + ":" + document.getElementById(endId).dataset.name);
         })
-        console.log(list);
         $.ajax({
             url: "php/template.php",
             dataType: 'json',
@@ -486,6 +532,7 @@ function submitTem(){
                 if(data["status"] != null){
                     if(data["status"] == 200){
                         alert("Success!");
+                        window.location.href = "homepage.html";
                     }else if(data["status"] == -1){
                         alert("[Error] Database");
                     }
