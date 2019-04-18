@@ -7,11 +7,32 @@ Take care of the DB info if errors occur anyway;
 
 	//// connect DB;
 	function connectDB(){
-		$con = mysqli_connect("localhost:3306", "root", "", "web");
+		$con = mysqli_connect("localhost:3308", "root", "", "web");
 		if(mysqli_connect_errno($con)){
 			die('Could not connect: ' . mysqli_error($con));
 		}
 		return $con;
+	}
+
+	//// check path of file if existed;
+	function checkFile($con, $RET){
+		$isWin = strtoupper(substr(PHP_OS,0,3)) === 'WIN'?true:false;
+		if($isWin){
+			$com = "cd C:\wamp64\www\TMP";
+			system($com, $s);
+			if($s == 1){
+				$RET["status"] = -1;
+				return $RET;
+			}else{
+				$com = "if exist ".$_POST["path"]." (echo 0)";
+				$out = system($com, $s);
+			}
+		}else{
+			//// todo;
+			$com = "...";
+		}
+		$RET["status"] = 200;
+		return $RET;
 	}
 
 	//// create template;
@@ -113,6 +134,9 @@ Take care of the DB info if errors occur anyway;
 				break;
 			case "delete":
 				$ret = deleteRepo($con, $ret);
+				break;
+			case "checkFile":
+				$ret = checkFile($con, $ret);
 				break;
 			default:
 				# code...

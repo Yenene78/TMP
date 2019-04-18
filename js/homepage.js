@@ -209,6 +209,7 @@ function createStep1(){
         switch(choose){
             case "From file path":
                 var newInput = document.createElement("input");
+                newInput.id = "Step0Input_filePath";
                 inputTr.append(insertTd(newInput));
                 inputTr.style.display = "";
                 break;
@@ -400,36 +401,36 @@ function processControl(step){
 //// [step1] -> [step2] save current created/edited repo into DB;
 function submitRepo(){
     alert(1);
-    // if(validateFlow()){
-    //     alert("link");
-    //     var startId = null;
-    //     var endId = null;
-    //     var list = Array();
-    //     $.each(jsPlumb.getAllConnections(),function(i,e){
-    //         startId = e.endpoints[0].anchor.elementId;
-    //         endId = e.endpoints[1].anchor.elementId;
-    //         list.push(document.getElementById(startId).dataset.name + ":" + document.getElementById(endId).dataset.name);
-    //     })
-    //     $.ajax({
-    //         url: "php/template.php",
-    //         dataType: 'json',
-    //         method: 'POST',
-    //         data: {"type":"save", "list":list},
-    //         success: function(data){
-    //             if(data["status"] != null){
-    //                 if(data["status"] == 200){
-    //                     alert("Success!");
-    //                     window.location.href = "homepage.html";
-    //                 }else if(data["status"] == -1){
-    //                     alert("[Error] Database");
-    //                 }
-    //             }
-    //         },
-    //         error: function(){
-    //             alert("[Error] Fail to post data!");
-    //         }
-    //     });
-    // }else{
-    //     alert("Validation fail.");
-    // }
+    var input = $("#step0Input").find("option:selected").text();
+    var output = $("#step0Output").find("option:selected").text();
+    if((input == "") || (output == "")){
+        alert("Invalid Input!");
+        return;
+    }
+    if(input == "From file path"){
+        input = document.getElementById("Step0Input_filePath");
+        if(input.value == ""){
+            alert("Invalid file path!");
+            return;
+        }
+        $.ajax({
+            url: "php/repository.php",
+            dataType: 'json',
+            method: 'POST',
+            data: {"type":"checkFile", "path":input.value},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        alert("Success!");
+                        window.location.href = "homepage.html";
+                    }else if(data["status"] == -1){
+                        alert("[Error] Database");
+                    }
+                }
+            },
+            error: function(){
+                alert("[Error] Fail to post data!");
+            }
+        });
+    }
 }
