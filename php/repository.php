@@ -7,7 +7,7 @@ Take care of the DB info if errors occur anyway;
 
 	//// connect DB;
 	function connectDB(){
-		$con = mysqli_connect("localhost:3308", "root", "", "web");
+		$con = mysqli_connect("localhost:3306", "root", "", "web");
 		if(mysqli_connect_errno($con)){
 			die('Could not connect: ' . mysqli_error($con));
 		}
@@ -86,6 +86,13 @@ Take care of the DB info if errors occur anyway;
 		return $RET;
 	}
 
+	//// execute the workflow;
+	// session-get;
+	function execFlow($con, $RET){
+		session_start();
+		echo($_SESSION["temName"]);
+	}
+
 	//// list out projects;
 	function listRepo($con, $RET){
 		$query = "select repoName from repo_basic;";
@@ -118,6 +125,29 @@ Take care of the DB info if errors occur anyway;
 		return $RET;
 	}
 
+	//// save specific repository;
+	// session-get;
+	function saveRepo($con, $RET){
+		session_start();
+		$input = $_POST["input"];
+		$output = $_POST["output"];
+		$tableName = "repoTable"."_".$_SESSION["repoName"];
+		$query = "drop table if exists ".$tableName;
+		$ret = mysqli_query($con, $query);
+		$query = "create table ".$tableName."(link varchar(32));";
+		$ret = mysqli_query($con, $query);
+		if($ret){
+			$query = "update repo_basic set input='".$input."',output='".$output."' where repoName='".$_SESSION["repoName"]."'";
+			$ret = mysqli_query($con, $query);
+			if($ret){
+				$RET["status"] = 200;
+			}
+		}else{
+			$RET["status"] = -1;
+		}
+		return $RET;
+	}
+
 	//// main:
 	$con = connectDB();
 	$ret = array();
@@ -137,6 +167,12 @@ Take care of the DB info if errors occur anyway;
 				break;
 			case "checkFile":
 				$ret = checkFile($con, $ret);
+				break;
+			case "save":
+				$ret = saveRepo($con, $ret);
+				break;
+			case "exec":
+				$ret = execFlow($con, $ret);
 				break;
 			default:
 				# code...

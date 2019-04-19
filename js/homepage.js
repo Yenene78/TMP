@@ -400,7 +400,6 @@ function processControl(step){
 
 //// [step1] -> [step2] save current created/edited repo into DB;
 function submitRepo(){
-    alert(1);
     var input = $("#step0Input").find("option:selected").text();
     var output = $("#step0Output").find("option:selected").text();
     if((input == "") || (output == "")){
@@ -422,14 +421,35 @@ function submitRepo(){
                 if(data["status"] != null){
                     if(data["status"] == 200){
                         alert("Success!");
-                        window.location.href = "homepage.html";
                     }else if(data["status"] == -1){
                         alert("[Error] Database");
+                        // window.location.href = "homepage.html";
                     }
                 }
             },
             error: function(){
                 alert("[Error] Fail to post data!");
+                // window.location.href = "homepage.html";
+            }
+        });
+        $.ajax({
+            url: "php/repository.php",
+            dataType: 'json',
+            method: 'POST',
+            data: {"type":"save", "input":input.value, "output":document.getElementById("step0Output").value},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        alert("Success!");
+                    }else if(data["status"] == -1){
+                        alert("[Error] Database");
+                        // window.location.href = "homepage.html";
+                    }
+                }
+            },
+            error: function(){
+                alert("[Error] Fail to post data!");
+                // window.location.href = "homepage.html";
             }
         });
     }
