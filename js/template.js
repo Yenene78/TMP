@@ -225,7 +225,7 @@ function createStep1(){
     var father = document.getElementById("tableBody");
     father.innerHTML = "";
     var row = document.createElement("tr");
-    row.style.width = "600px";
+    row.style.width = "700px";
     father.append(row);
     // canvas;
     var cvsDiv = document.createElement("div"); 
@@ -270,15 +270,17 @@ function createStep1(){
 function createToolBar(){
     var father = document.getElementById("content");
     var pannelDiv = document.createElement("div");
-    pannelDiv.className = "uk-panel uk-panel-box uk-position-relative uk-width-1-6 uk-float-right";
+    pannelDiv.className = "mypanel uk-panel uk-panel-box uk-position-relative uk-width-1-6 uk-float-right";
     // title;
     var pannelTitle = document.createElement("h3");
+    pannelTitle.className = "uk-panel-title";
     pannelTitle.innerHTML = "Tools";
     pannelDiv.append(pannelTitle);
     // nav;
     var nav = document.createElement("ul");
     nav.className = "uk-nav uk-nav-side uk-nav-parent-icon";
     nav.dataset.ukNav = "{multiple:true}";
+    nav.innerHTML += "<li class='uk-nav-divider'></li>";
     // get elements;
     $.ajax({
         url: "php/template.php",
@@ -292,7 +294,7 @@ function createToolBar(){
                     // create tools;
                     for(var i=0; i<data["ele"].length; i++){
                         var newLi = document.createElement("li");
-                        var newA = document.createElement("button");
+                        var newA = document.createElement("a");
                         var icon = document.createElement("i");
                         icon.className = "uk-icon-star";
                         newA.append(icon);
@@ -316,6 +318,7 @@ function createToolBar(){
                     btn.addEventListener("click", function(){
                         submitTem();
                     });
+                    btn.style.width = "120px";
                     nav.append(btn);
                     // create delete btn;
                     var btn = document.createElement("button");
@@ -325,6 +328,7 @@ function createToolBar(){
                     btn.addEventListener("click", function(){
                         deleteTem();
                     });
+                    btn.style.width = "120px";
                     nav.append(btn);
                 }else if(data["status"] == -1){
                     alert("No available elements found!");

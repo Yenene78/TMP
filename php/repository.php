@@ -7,7 +7,7 @@ Take care of the DB info if errors occur anyway;
 
 	//// connect DB;
 	function connectDB(){
-		$con = mysqli_connect("localhost:3306", "root", "", "web");
+		$con = mysqli_connect("localhost:3308", "root", "", "web");
 		if(mysqli_connect_errno($con)){
 			die('Could not connect: ' . mysqli_error($con));
 		}
@@ -15,8 +15,11 @@ Take care of the DB info if errors occur anyway;
 	}
 
 	//// check path of file if existed;
+	// add 2>&1 to determine the bug;
 	function checkFile($con, $RET){
+		ob_start();
 		$isWin = strtoupper(substr(PHP_OS,0,3)) === 'WIN'?true:false;
+		$isLin = strtoupper(substr(PHP_OS,0,3)) === 'LIN'?true:false;
 		if($isWin){
 			$com = "cd C:\wamp64\www\TMP";
 			system($com, $s);
@@ -24,15 +27,32 @@ Take care of the DB info if errors occur anyway;
 				$RET["status"] = -1;
 				return $RET;
 			}else{
-				$com = "if exist ".$_POST["path"]." (echo 0)";
+				$com = "cd C:\wamp64\www\TMP && if exist ".$_POST["path"]." (echo 0) else (echo 1)"; // <cd ...> is fockingly necessary;
 				$out = system($com, $s);
+				if($out == "1"){
+					$RET["status"] = -1;
+					return $RET;
+				}else{
+					ob_clean();
+					ob_end_flush();
+					$RET["status"] = 200;
+					return $RET;
+				}
 			}
-		}else{
-			//// todo;
-			$com = "...";
+		}elseif($isLin){
+			$com = "cd /home/tools && ls ".$_POST["path"];
+			// $com = "ls 2>&1";
+			$out = system($com, $s);
+			if($out != $_POST["path"]){
+				$RET["status"] = -1;
+				return $RET;
+			}else{
+				ob_clean();
+				ob_end_flush();
+				$RET["status"] = 200;
+				return $RET;
+			}
 		}
-		$RET["status"] = 200;
-		return $RET;
 	}
 
 	//// create template;
@@ -88,9 +108,90 @@ Take care of the DB info if errors occur anyway;
 
 	//// execute the workflow;
 	// session-get;
+	// todo: can improve algorithm;
 	function execFlow($con, $RET){
+		$isWin = strtoupper(substr(PHP_OS,0,3)) === 'WIN'?true:false;
+		$isLin = strtoupper(substr(PHP_OS,0,3)) === 'LIN'?true:false;
 		session_start();
-		echo($_SESSION["temName"]);
+		ob_start();
+		$temName = $_POST["temName"];
+		$query = "select * from temTable_".$temName.";";
+		$ret = mysqli_query($con, $query);
+		$eleList = mysqli_fetch_all($ret);
+		$flow = Array();
+		foreach($eleList as $v){
+			$start = explode(":", $v[0])[0];
+			if($start == "INPUT"){
+				$start = $_POST["input"];
+			}else{ // find out the exec progrom for current element:
+				$query = "select path from element_basic where elementName='".$start."';";
+				$ret = mysqli_query($con, $query);
+				if(!$ret){
+					$RET["status"] = -1;
+					return $RET;
+				}
+				$start = mysqli_fetch_all($ret)[0][0];
+			}
+			array_push($flow, $start);
+			$end = explode(":", $v[0])[1];
+			if($end == "OUTPUT"){
+				$end = $_POST["output"];
+			}else{
+				$query = "select path from element_basic where elementName='".$end."';";
+				$ret = mysqli_query($con, $query);
+				if(!$ret){
+					$RET["status"] = -1;
+					return $RET;
+				}
+				$end = mysqli_fetch_all($ret)[0][0];
+			}
+			array_push($flow, $end);
+		}
+		$RET["exec"] = $flow;
+		$log = Array();
+		if(sizeof($flow) <= 2){	// 1-2:
+			$cur = $flow[0];
+			if($isWin){
+				$com = "cd C:\wamp64\www\TMP";
+				$com = $com." && ";
+				$com = $com."type ".$cur;
+			}elseif($isLin){
+				$com = "cd /home/tools";
+				$com = $com." && ";
+				$com = $com."echo ".$cur;
+			}
+			
+			$ret = system($com, $s);
+			$RET["status"] = 200;
+			return $RET;
+		}else{
+			if($isWin){
+				$com0 = "cd C:\wamp64\www\TMP";
+			}elseif($isLin){
+				$com0 = "cd /home/tools";
+			}
+			$ret = "";
+			for($i=0; $i<sizeof($flow)-1; $i++){
+				$cur = $flow[0];
+				$next = $flow[1];
+				if($i == 0){
+					$com = $com0." &&python3 ".$next."<".$cur;
+					$ret = system($com, $s);
+					array_push($log, $ret);
+				}else{
+					if($cur != $next){
+						$com = $com0." &&python3 ".$next."<".$ret;
+						$ret = system($com, $s);
+					}
+					array_push($log, $ret);
+				}
+			}
+			ob_clean();
+			ob_end_flush();
+			$RET["ret"] = $log;
+			$RET["status"] = 200;
+			return $RET;
+		}
 	}
 
 	//// list out projects;
@@ -111,7 +212,7 @@ Take care of the DB info if errors occur anyway;
 	//// load specific repository;
 	// session-set;
 	function loadRepo($con, $RET){
-		$tableName = "repotable"."_".$_POST["repoName"];
+		$tableName = "repoTable"."_".$_POST["repoName"];
 		$query = "select * from ".$tableName.";";
 		$ret = mysqli_query($con, $query);
 		if($ret){

@@ -7,7 +7,7 @@ Take care of the DB info if errors occur anyway;
 
 	//// connect DB;
 	function connectDB(){
-		$con = mysqli_connect("localhost:3306", "root", "", "web");
+		$con = mysqli_connect("localhost:3308", "root", "", "web");
 		if(mysqli_connect_errno($con)){
 			die('Could not connect: ' . mysqli_error($con));
 		}
@@ -99,7 +99,7 @@ Take care of the DB info if errors occur anyway;
 	//// load specific template;
 	// session-set;
 	function loadTem($con, $RET){
-		$tableName = "temtable"."_".$_POST["temName"];
+		$tableName = "temTable"."_".$_POST["temName"];
 		$query = "select * from ".$tableName.";";
 		$ret = mysqli_query($con, $query);
 		if($ret){

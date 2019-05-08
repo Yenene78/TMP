@@ -7,7 +7,5 @@ create table template_basic(
 	description varchar(100),
 	userName varchar(16),
 	temLinkName Integer,
-	PRIMARY KEY(templateName)
+	PRIMARY KEY(temLinkName)
 );	
-
-insert into template_basic (templateName, description, userName, temLinkName) values ("Template1","Test","123", 0);

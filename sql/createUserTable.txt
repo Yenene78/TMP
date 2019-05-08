@@ -4,6 +4,5 @@ use web;
 drop table user_basic;
 create table user_basic(
 	userName varchar(16),
-	password varchar(16),
-	PRIMARY KEY(userName)
+	password varchar(16)
 );
