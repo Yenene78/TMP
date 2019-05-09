@@ -99,7 +99,7 @@ Take care of the DB info if errors occur anyway;
 	//// load specific template;
 	// session-set;
 	function loadTem($con, $RET){
-		$tableName = "temtable"."_".$_POST["temName"];
+		$tableName = "temTable"."_".$_POST["temName"];
 		$query = "select * from ".$tableName.";";
 		$ret = mysqli_query($con, $query);
 		if($ret){

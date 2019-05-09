@@ -118,69 +118,6 @@ function createStep0(){
     father.append(row);
 }
 
-function createUpload(){
-    var bar = document.getElementById('js-progressbar');
-
-    UIkit.upload('.js-upload', {
-
-        url: '',
-        multiple: true,
-
-        beforeSend: function (environment) {
-            console.log('beforeSend', arguments);
-
-            // The environment object can still be modified here. 
-            // var {data, method, headers, xhr, responseType} = environment;
-
-        },
-        beforeAll: function () {
-            console.log('beforeAll', arguments);
-        },
-        load: function () {
-            console.log('load', arguments);
-        },
-        error: function () {
-            console.log('error', arguments);
-        },
-        complete: function () {
-            console.log('complete', arguments);
-        },
-
-        loadStart: function (e) {
-            console.log('loadStart', arguments);
-
-            bar.removeAttribute('hidden');
-            bar.max = e.total;
-            bar.value = e.loaded;
-        },
-
-        progress: function (e) {
-            console.log('progress', arguments);
-
-            bar.max = e.total;
-            bar.value = e.loaded;
-        },
-
-        loadEnd: function (e) {
-            console.log('loadEnd', arguments);
-
-            bar.max = e.total;
-            bar.value = e.loaded;
-        },
-
-        completeAll: function () {
-            console.log('completeAll', arguments);
-
-            setTimeout(function () {
-                bar.setAttribute('hidden', 'hidden');
-            }, 1000);
-
-            alert('Upload Completed');
-        }
-
-    });
-}
-
 //// [step1] create routine;
 function createStep1(){
     // display previous btn;
@@ -214,14 +151,26 @@ function createStep1(){
                 inputTr.style.display = "";
                 break;
             case "Upload":
-                var newInput = document.createElement("input");
-                newInput.multiple = "";
-                newInput.type = "file";
-                var newBtn = document.createElement("button");
-                newBtn.type = "button";
-                newBtn.className = "uk-button uk-button-default";
-                newBtn.tabindex = "-1";
+                // var newInput = document.createElement("input");
+                // newInput.multiple = "";
+                // newInput.type = "file";
+                // var newBtn = document.createElement("button");
+                // newBtn.type = "button";
+                // newBtn.className = "uk-button uk-button-default";
+                // newBtn.tabindex = "-1";
+                var newInput = document.createElement("div");
+                newInput.id = "upload-drop";
+                newInput.className = "uk-placeholder";
+                newInput.innerHTML = "<a class='uk-form-file'>Select a file<input id='upload-select' type='file'></a>.";
                 inputTr.append(insertTd(newInput));
+                var newBar = document.createElement("div");
+                newBar.id = "progressbar";
+                newBar.className = "uk-progress uk-hidden";
+                inputTr.append(insertTd(newBar));
+                var newBar = document.createElement("div");
+                newBar.className = "uk-progress-bar";
+                newBar.style.width = "0%";
+                inputTr.append(insertTd(newBar));
                 inputTr.ukFormCustom = "";
                 inputTr.style.display = "";
                 break;
@@ -241,6 +190,13 @@ function createStep1(){
     row.id = "Step0Input_holder";
     row.style.display = "none";
     father.append(row);
+    // template div;
+    var row = document.createElement("tr");
+    var temDiv = document.createElement("td");
+    temDiv.innerHTML = "Template: ";
+    row.append(temDiv);
+    listTem(document.createElement("select"), row);
+    father.append(row);
     // output;
     var row = document.createElement("tr");
     var output = document.createElement("td");
@@ -250,13 +206,64 @@ function createStep1(){
     outputDiv.className = "dropdown";
     outputDiv.id = "step0Output";
     outputDiv.innerHTML = "<option disabled selected></option>";
+    outputDiv.onchange = function(){ // dynamically load;
+        var choose = $("#step0Output").find("option:selected").text();
+        var outputTr = document.getElementById("Step0Output_holder");
+        var outputTr1 = document.getElementById("Step0Output_holder1");
+        outputTr .innerHTML = "<td></td>";
+        switch(choose){
+            case "Online":
+                var newOutput = document.createElement("a");
+                newOutput.id = "Step0Output_ResultImage";
+                newOutput.className = "uk-button";
+                // newOutput.href = "myplot.png";
+                newOutput.dataset.ukLightbox = "";
+                newOutput.title = "Image Result:";
+                newOutput.innerHTML = "Image Result";
+                outputTr.append(insertTd(newOutput));
+                outputTr.style.display = "";
+                var newText = document.createElement("textarea");
+                newText.value = "None";
+                newText.id = "step0Output_Text";
+                newText.rows = "5";
+                newText.cols = "30";
+                newText.disabled = "true";
+                outputTr1.append(insertTd(newText));
+                outputTr1.style.display = "";
+                break;
+            case "Download":
+                outputTr1.style.display = "none";
+                outputTr1.innerHTML = "<td></td>";
+                var newOutput = document.createElement("a");
+                newOutput.id = "Step0Output_Download";
+                newOutput.className = "uk-button";
+                newOutput.href = "Rplots.pdf";
+                newOutput.title = "Image Result:";
+                newOutput.innerHTML = "Download";
+                newOutput.download = "result";
+                outputTr.append(insertTd(newOutput));
+                outputTr.style.display = "";
+                break;
+        }
+    };
     var option0 = document.createElement("option");
-    option0.innerHTML = "Terminal";
+    option0.innerHTML = "Online";
     outputDiv.append(option0);
     var option1 = document.createElement("option");
     option1.innerHTML = "Download";
     outputDiv.append(option1);
     row.append(insertTd(outputDiv));
+    father.append(row);
+    // output-prepared-div:
+    var row = document.createElement("tr");
+    row.innerHTML = "<td></td>";
+    row.id = "Step0Output_holder";
+    row.style.display = "none";
+    father.append(row);
+    var row = document.createElement("tr");
+    row.innerHTML = "<td></td>";
+    row.id = "Step0Output_holder1";
+    row.style.display = "none";
     father.append(row);
     // create submit btn;
     var row = document.createElement("tr");
@@ -310,6 +317,64 @@ function insertTd(ele){
     var td = document.createElement("td");
     td.append(ele);
     return td;
+}
+
+//// check with DB about templates info;
+//// help load into the selectDiv;
+function listTem(selectDiv, row){
+    selectDiv.id = "step0temName";
+    selectDiv.innerHTML = "<option disabled selected></option>";
+    selectDiv.className = "dropdown";
+    selectDiv.onchange = function(){ // dynamically load;
+        var choose = $("#step0temName").find("option:selected").text();
+        var linkData = null;
+        var aj = $.ajax({
+            url: "php/template.php",
+            dataType: 'json',
+            method: 'POST',
+            async: false,
+            data: {"type":"load", "temName":choose},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        linkData = data["link"];
+                        console.log(linkData);
+                        for(var i=0; i<linkData.length; i++){
+                            //// todo !!!;
+                        }
+                        return data["link"];
+                    }else if(data["status"] == -1){
+                        alert("[Error] Fail to load temData from DB.");
+                    }    
+                }
+            },
+            error: function(){
+                alert("[Error] Fail to post data!");
+            }
+        }); 
+    }
+    $.ajax({
+        url: "php/template.php",
+        dataType: 'json',
+        method: 'POST',
+        async: false,
+        data: {"type":"list"},
+        success: function(data){
+            var li = data["tem"][0];
+            if(data["status"] != null){
+                for(var i=0; i<li.length; i++){
+                    console.log(li[i]);
+                    var option = document.createElement("option");
+                    option.innerHTML = li[i];
+                    selectDiv.append(option);
+                    row.append(insertTd(selectDiv));
+                }
+            }
+        },
+        error: function(){
+            alert("[Error] Fail to post data!");
+        }
+    });
 }
 
 function listRepo(){
@@ -402,7 +467,8 @@ function processControl(step){
 function submitRepo(){
     var input = $("#step0Input").find("option:selected").text();
     var output = $("#step0Output").find("option:selected").text();
-    if((input == "") || (output == "")){
+    var temName = $("#step0temName").find("option:selected").text();
+    if((input == "") || (output == "") || (temName == "")){
         alert("Invalid Input!");
         return;
     }
@@ -416,41 +482,91 @@ function submitRepo(){
             url: "php/repository.php",
             dataType: 'json',
             method: 'POST',
+            async: false,
             data: {"type":"checkFile", "path":input.value},
             success: function(data){
                 if(data["status"] != null){
                     if(data["status"] == 200){
-                        alert("Success!");
+                        console.log("Pass path check");
                     }else if(data["status"] == -1){
-                        alert("[Error] Database");
+                        alert("[Error] Unknown path.");
                         // window.location.href = "homepage.html";
                     }
                 }
             },
-            error: function(){
-                alert("[Error] Fail to post data!");
-                // window.location.href = "homepage.html";
-            }
         });
         $.ajax({
             url: "php/repository.php",
             dataType: 'json',
             method: 'POST',
+            async: false,
             data: {"type":"save", "input":input.value, "output":document.getElementById("step0Output").value},
             success: function(data){
                 if(data["status"] != null){
                     if(data["status"] == 200){
-                        alert("Success!");
+                        console.log("Save");
                     }else if(data["status"] == -1){
                         alert("[Error] Database");
                         // window.location.href = "homepage.html";
                     }
                 }
             },
+        });
+        console.log("into test:");
+        var linkData = null;
+        var aj = $.ajax({
+            url: "php/template.php",
+            dataType: 'json',
+            method: 'POST',
+            async: false,
+            data: {"type":"load", "temName":temName},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        linkData = data["link"];
+                        return data["link"];
+                    }else if(data["status"] == -1){
+                        alert("[Error] Fail to load temData from DB.");
+                    }    
+                }
+            },
             error: function(){
                 alert("[Error] Fail to post data!");
-                // window.location.href = "homepage.html";
             }
+        });  
+        console.log(linkData);
+        $.ajax({
+            url: "http://localhost:8888/",
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            method: 'POST',
+            async: true,
+            data: {"type":"exec", "input":input.value, "output":document.getElementById("step0Output").value, "temName":temName, "linkData":JSON.stringify(linkData)},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        console.log("Pass path check");
+                    }else if(data["status"] == -1){
+                        alert("[Error] Erro occurs in running section.");
+                    }
+                }
+            },
         });
+        // $.ajax({
+        //     url: "php/repository.php",
+        //     dataType: 'json',
+        //     method: 'POST',
+        //     data: {"type":"exec", "input":input.value, "output":document.getElementById("step0Output").value, "temName":temName},
+        //     success: function(data){
+        //         if(data["status"] != null){
+        //             if(data["status"] == 200){
+        //                 console.log("Exec");
+        //             }else if(data["status"] == -1){
+        //                 alert("[Error] Database");
+        //                 // window.location.href = "homepage.html";
+        //             }
+        //         }
+        //     },
+        // });
     }
 }
