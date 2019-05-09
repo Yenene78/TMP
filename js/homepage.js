@@ -322,6 +322,7 @@ function insertTd(ele){
 //// check with DB about templates info;
 //// help load into the selectDiv;
 function listTem(selectDiv, row){
+<<<<<<< HEAD
     selectDiv.id = "step0temName";
     selectDiv.innerHTML = "<option disabled selected></option>";
     selectDiv.className = "dropdown";
@@ -353,6 +354,10 @@ function listTem(selectDiv, row){
             }
         }); 
     }
+=======
+    selectDiv.innerHTML = "<option disabled selected></option>";
+    selectDiv.className = "dropdown";
+>>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
     $.ajax({
         url: "php/template.php",
         dataType: 'json',
@@ -467,7 +472,11 @@ function processControl(step){
 function submitRepo(){
     var input = $("#step0Input").find("option:selected").text();
     var output = $("#step0Output").find("option:selected").text();
+<<<<<<< HEAD
     var temName = $("#step0temName").find("option:selected").text();
+=======
+    var temName = document.getElementById("step0temName").value;
+>>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
     if((input == "") || (output == "") || (temName == "")){
         alert("Invalid Input!");
         return;
@@ -511,6 +520,7 @@ function submitRepo(){
                     }
                 }
             },
+<<<<<<< HEAD
         });
         console.log("into test:");
         var linkData = null;
@@ -552,6 +562,28 @@ function submitRepo(){
                 }
             },
         });
+=======
+        });
+        console.log("into test:");
+        $.ajax({
+            url: "http://localhost:8888/",
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            method: 'POST',
+            async: false,
+            data: {"type":"exec", "input":input.value, "output":document.getElementById("step0Output").value, "temName":temName},
+            success: function(data){
+                if(data["status"] != null){
+                    if(data["status"] == 200){
+                        console.log("Pass path check");
+                    }else if(data["status"] == -1){
+                        alert("[Error] Unknown path.");
+                        // window.location.href = "homepage.html";
+                    }
+                }
+            },
+        });
+>>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
         // $.ajax({
         //     url: "php/repository.php",
         //     dataType: 'json',
