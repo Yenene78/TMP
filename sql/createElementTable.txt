@@ -6,10 +6,11 @@ create table element_basic(
 	elementName varchar(16),
 	description varchar(100),
 	path varchar(100),
-	inputType varchar(16),
-	outputType varchar(16)
+	inputType varchar(100),
+	outputType varchar(100)
 );
 
 insert into element_basic (elementName, description, path, inputType, outputType) values ("INPUT", "INPUT", "#", "#", "*");
 insert into element_basic (elementName, description, path, inputType, outputType) values ("OUTPUT", "OUTPUT", "#", "*", "#");
 insert into element_basic (elementName, description, path, inputType, outputType) values ("test1", "my simple test", "test1.py", "string", "string");
+insert into element_basic (elementName, description, path, inputType, outputType) values ("Seurat", "Seurat Test", "test1.py", "1.png,2.png,3.png", "string");

@@ -249,6 +249,20 @@ Take care of the DB info if errors occur anyway;
 		return $RET;
 	}
 
+	function getTemInput($con, $RET){
+		$query = "select inputType from element_basic where elementName='".$_POST["eleName"]."';";
+		$ret = mysqli_query($con, $query);
+		if($ret->num_rows != 0){
+			$RET["status"] = 200;
+			$RET["field"] = mysqli_fetch_fields($ret);
+			$RET["input"] = mysqli_fetch_all($ret);
+		}else{
+			$RET["status"] = -1;
+			$RET["input"] = array();
+		}
+		return $RET;
+	}
+
 	//// main:
 	$con = connectDB();
 	$ret = array();
@@ -274,6 +288,9 @@ Take care of the DB info if errors occur anyway;
 				break;
 			case "exec":
 				$ret = execFlow($con, $ret);
+				break;
+			case "getTemInput":
+				$ret = getTemInput($con, $ret);
 				break;
 			default:
 				# code...

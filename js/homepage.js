@@ -27,20 +27,43 @@ var cookie = {
     }
 };
 
+var uploadCounter = 0;
+function addUpload(fileName){
+    var formDiv = document.createElement("form");
+    formDiv.action = "php/upload.php";
+    formDiv.method = "post";
+    formDiv.enctype = "multipart/form-data";
+    formDiv.id = "form" + uploadCounter.toString();
+    uploadCounter++;
+    formDiv.innerHTML += fileName + ": ";
+    formDiv.innerHTML += "<input type=\"file\" name=\"file\"/>";
+    formDiv.innerHTML += "<input type=\"button\" value=\"Upload\" onclick='uploadFile(\""+formDiv.id+"\")'/>";
+    return formDiv;
+}
+
+// function submitForm(id) {
+//     // jquery 表单提交
+//     $("#"+id).ajaxSubmit(function(message) {
+//         // 对于表单提交成功后处理，message为表单正常提交后返回的内容
+//         console.log(message);
+//     });
+//     return false; // 必须返回false，否则表单会自己再做一次提交操作，并且页面跳转
+// }
+
 function checkLogin(){
-	$.ajax({
+    $.ajax({
         url: "php/account.php",
         dataType: 'json',
         method: 'POST',
         data: {"type":"check"},
         success: function(data){
-        	if(data["status"] != null){
-        		if(data["status"] == 200){
-        			listRepo();
-        		}else if(data["status"] == -1){
-        			window.location.href = "login.html";
-        		}
-        	}
+            if(data["status"] != null){
+                if(data["status"] == 200){
+                    listRepo();
+                }else if(data["status"] == -1){
+                    window.location.href = "login.html";
+                }
+            }
         },
         error: function(){
             alert("[Error] Fail to post data!");
@@ -159,18 +182,22 @@ function createStep1(){
                 // newBtn.className = "uk-button uk-button-default";
                 // newBtn.tabindex = "-1";
                 var newInput = document.createElement("div");
-                newInput.id = "upload-drop";
-                newInput.className = "uk-placeholder";
-                newInput.innerHTML = "<a class='uk-form-file'>Select a file<input id='upload-select' type='file'></a>.";
+                 
+                // newInput.innerHTML = "<form action=\"php/upload.php\" method=\"post\" enctype=\"multipart/form-data\"><label form=\"file\">Filename:</label><input type=\"file\" name=\"file\" id=\"file\" /><input type=\"submit\" value=\"Upload\" />";
+                newInput.append(addUpload());
+                
+                // newInput.id = "upload-drop";
+                // newInput.className = "uk-placeholder";
+                // newInput.innerHTML = "<a class='uk-form-file'>Select a file<input id='upload-select' type='file'></a>.";
                 inputTr.append(insertTd(newInput));
-                var newBar = document.createElement("div");
-                newBar.id = "progressbar";
-                newBar.className = "uk-progress uk-hidden";
-                inputTr.append(insertTd(newBar));
-                var newBar = document.createElement("div");
-                newBar.className = "uk-progress-bar";
-                newBar.style.width = "0%";
-                inputTr.append(insertTd(newBar));
+                // var newBar = document.createElement("div");
+                // newBar.id = "progressbar";
+                // newBar.className = "uk-progress uk-hidden";
+                // inputTr.append(insertTd(newBar));
+                // var newBar = document.createElement("div");
+                // newBar.className = "uk-progress-bar";
+                // newBar.style.width = "0%";
+                // inputTr.append(insertTd(newBar));
                 inputTr.ukFormCustom = "";
                 inputTr.style.display = "";
                 break;
@@ -321,8 +348,8 @@ function insertTd(ele){
 
 //// check with DB about templates info;
 //// help load into the selectDiv;
+var formList = Array();
 function listTem(selectDiv, row){
-<<<<<<< HEAD
     selectDiv.id = "step0temName";
     selectDiv.innerHTML = "<option disabled selected></option>";
     selectDiv.className = "dropdown";
@@ -339,9 +366,34 @@ function listTem(selectDiv, row){
                 if(data["status"] != null){
                     if(data["status"] == 200){
                         linkData = data["link"];
-                        console.log(linkData);
-                        for(var i=0; i<linkData.length; i++){
-                            //// todo !!!;
+                        if(linkData.length > 1){
+                            var start = linkData[0][0];
+                            var inputEle = start.split(":")[1];
+                            var inputList = null;
+                            $.ajax({
+                                url: "php/repository.php",
+                                dataType: 'json',
+                                method: 'POST',
+                                async: false,
+                                data: {"type":"getTemInput", "eleName":inputEle},
+                                success: function(data){
+                                    inputList = data["input"][0][0];
+                                },
+                                error: function(){
+                                    alert("[Error] Fail to post data!");
+                                }
+                            });
+                            inputList = inputList.split(",");
+                            // generate upload div according to the num of input gained here;
+                            for(var i=0; i<inputList.length; i++){
+                                var formDiv = addUpload(inputList[i]);
+                                selectDiv.parentNode.append(formDiv);
+                                formList.push(formDiv.id);
+                                ////todo;
+                            }
+                            console.log(inputList);
+                        }else{
+                            alert("Check the Template! No script inside.");
                         }
                         return data["link"];
                     }else if(data["status"] == -1){
@@ -354,10 +406,6 @@ function listTem(selectDiv, row){
             }
         }); 
     }
-=======
-    selectDiv.innerHTML = "<option disabled selected></option>";
-    selectDiv.className = "dropdown";
->>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
     $.ajax({
         url: "php/template.php",
         dataType: 'json',
@@ -365,15 +413,15 @@ function listTem(selectDiv, row){
         async: false,
         data: {"type":"list"},
         success: function(data){
-            var li = data["tem"][0];
+            var li = data["tem"];
             if(data["status"] != null){
                 for(var i=0; i<li.length; i++){
                     console.log(li[i]);
                     var option = document.createElement("option");
                     option.innerHTML = li[i];
                     selectDiv.append(option);
-                    row.append(insertTd(selectDiv));
                 }
+                row.append(insertTd(selectDiv));
             }
         },
         error: function(){
@@ -406,7 +454,6 @@ function listRepo(){
 }
 
 function loadRepo(repo){
-    console.log(repo);
     var projectList = document.getElementById("projectList");
     projectList.innerHTML = "<b> Project List: </b>";
     if(repo == null){
@@ -472,11 +519,7 @@ function processControl(step){
 function submitRepo(){
     var input = $("#step0Input").find("option:selected").text();
     var output = $("#step0Output").find("option:selected").text();
-<<<<<<< HEAD
     var temName = $("#step0temName").find("option:selected").text();
-=======
-    var temName = document.getElementById("step0temName").value;
->>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
     if((input == "") || (output == "") || (temName == "")){
         alert("Invalid Input!");
         return;
@@ -520,7 +563,6 @@ function submitRepo(){
                     }
                 }
             },
-<<<<<<< HEAD
         });
         console.log("into test:");
         var linkData = null;
@@ -544,6 +586,12 @@ function submitRepo(){
                 alert("[Error] Fail to post data!");
             }
         });  
+        //// todo;
+        // upload all in formList;
+        console.log(formList);
+        for(var i=0; i<formList.length; i++){
+            uploadFile(formList[i]);
+        }
         console.log(linkData);
         $.ajax({
             url: "http://localhost:8888/",
@@ -562,28 +610,6 @@ function submitRepo(){
                 }
             },
         });
-=======
-        });
-        console.log("into test:");
-        $.ajax({
-            url: "http://localhost:8888/",
-            dataType: 'json',
-            contentType: "application/json; charset=utf-8",
-            method: 'POST',
-            async: false,
-            data: {"type":"exec", "input":input.value, "output":document.getElementById("step0Output").value, "temName":temName},
-            success: function(data){
-                if(data["status"] != null){
-                    if(data["status"] == 200){
-                        console.log("Pass path check");
-                    }else if(data["status"] == -1){
-                        alert("[Error] Unknown path.");
-                        // window.location.href = "homepage.html";
-                    }
-                }
-            },
-        });
->>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
         // $.ajax({
         //     url: "php/repository.php",
         //     dataType: 'json',
@@ -601,4 +627,24 @@ function submitRepo(){
         //     },
         // });
     }
+}
+
+function uploadFile(id){
+    // document.getElementById(id).submit();
+    console.log(document.getElementById(id));
+    var fd = new FormData(document.getElementById(id));
+    // fd.append("file", document.getElementById(id).files[0]);
+    $.ajax({    
+        type: "POST",  
+        url:"php/upload.php",  
+        data:fd,
+        processData:false,
+        async: false,  
+        error: function(request) {  
+            alert("Connection error:"+request.error);  
+        },  
+        success: function(data) {  
+            alert("SUCCESS!");  
+        }  
+    }); 
 }

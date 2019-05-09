@@ -1,9 +1,6 @@
 from flask import Flask, request, make_response
 from flask_cors import CORS
-<<<<<<< HEAD
 from urllib import parse
-=======
->>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
 
 app = Flask(__name__);
 CORS(app, resources=r'/*')
@@ -12,7 +9,6 @@ CORS(app, resources=r'/*')
 def hello_world():
 	reqData = str(request.data).strip("b'");
 	reqData = reqData.split("&");
-<<<<<<< HEAD
 	dic = {};
 	for x in reqData:
 		x = parse.unquote(x);
@@ -24,9 +20,6 @@ def hello_world():
 		else:
 			dic["link"] = x[1];
 	print(dic);
-=======
-	print(reqData);
->>>>>>> b9b98141726192ff5a243e9acb05fa041dafa42d
 	response=make_response("HelloWorld!");
 	response.headers["Access-Control-Allow-Origin"] = "*";
 	response.headers["Access-Control-Allow-Headers"] = "X-Requested-With,Content-Type";
