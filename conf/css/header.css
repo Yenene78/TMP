@@ -1,0 +1,32 @@
+.container{
+	width: 50%;
+}
+
+.header{
+	padding: 50 15 50 10;
+	margin: 5 5;
+}
+
+.navbar{
+	margin: 10;
+	height: 45;
+	background: white!important;
+}
+
+.hoverLink{
+	margin-left: 50;
+	left: 200;
+	color: #6c7680;
+}
+.uk-article{
+	background: rgba(255,255,255,1);
+	border-radius: 20px!important;
+	padding-left:30;
+	padding-right:30;
+}
+
+.uk-navbar-nav>li.uk-active>a{
+	background-color: #399ee6;
+	color: white;
+	text-shadow: none;
+}
